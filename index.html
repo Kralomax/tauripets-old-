@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>TauriPets - Battle Pet Collection Tracker</title>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <style>
         * {
             margin: 0;
@@ -1263,13 +1264,16 @@
         ];
 
         // =====================================================
-        // LEADERBOARD DATA (Static - update manually from Discord submissions)
+        // SUPABASE CONFIGURATION
         // =====================================================
-        const LEADERBOARD_DATA = [
-            // Example entries - replace with real submissions
-            // { player: "Kralomax", realm: "Tauri", score: 2847, pets: 156, level25: 42, date: "2024-12-10" },
-            // { player: "PetMaster", realm: "Tauri", score: 2654, pets: 142, level25: 38, date: "2024-12-09" },
-        ];
+        const SUPABASE_URL = 'https://yxendhrzacondoyzfzlf.supabase.co';
+        const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inl4ZW5kaHJ6YWNvbmRveXpmemxmIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjU0OTM2OTcsImV4cCI6MjA4MTA2OTY5N30.Pa2CA_AaB2GPAgKWmuUVyB7be1xTLUxqriy1iSO8b4g';
+        const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
+        // =====================================================
+        // LEADERBOARD DATA (fetched from Supabase)
+        // =====================================================
+        let LEADERBOARD_DATA = [];
 
         // =====================================================
         // GLOBAL STATE
@@ -1413,7 +1417,8 @@
         }
         
         // Submit score to leaderboard (Supabase integration placeholder)
-        function submitScore() {
+        // Submit score to leaderboard (Supabase)
+        async function submitScore() {
             const pb = loadPersonalBest();
             if (!pb) {
                 alert('Load your collection first!');
@@ -1431,35 +1436,69 @@
                 epic: currentScoreData.stats.epicCount
             } : pb;
             
-            // TODO: Replace with Supabase insert
-            // For now, show what would be submitted
-            console.log('Score submission data:', data);
-            
-            // Placeholder until Supabase is set up
-            alert(`🏆 Score Submission\n\nPlayer: ${data.player}-${data.realm}\nScore: ${data.score.toLocaleString()}\nPets: ${data.pets}\nLevel 25: ${data.level25}\n\n⚠️ Leaderboard coming soon!\nYour personal best is saved locally.`);
-            
-            /* 
-            // SUPABASE INTEGRATION (uncomment when ready):
-            const { data: result, error } = await supabase
-                .from('leaderboard')
-                .upsert({
-                    player: data.player,
-                    realm: data.realm,
-                    score: data.score,
-                    pets: data.pets,
-                    level25: data.level25,
-                    rare: data.rare,
-                    epic: data.epic,
-                    updated_at: new Date().toISOString()
-                }, { onConflict: 'player,realm' });
-            
-            if (error) {
-                alert('Error submitting score: ' + error.message);
-            } else {
-                showCopyFeedback('Score submitted!');
-                renderLeaderboard();
+            // Confirm submission
+            if (!confirm(`Submit your score?\n\nPlayer: ${data.player}-${data.realm}\nScore: ${data.score.toLocaleString()}\nPets: ${data.pets}\nLevel 25: ${data.level25}`)) {
+                return;
             }
-            */
+            
+            try {
+                // Check if player already has an entry
+                const { data: existing, error: checkError } = await supabase
+                    .from('Leaderboard')
+                    .select('id, score')
+                    .eq('player', data.player)
+                    .eq('realm', data.realm)
+                    .single();
+                
+                if (existing && existing.score >= data.score) {
+                    alert(`Your current leaderboard score (${existing.score.toLocaleString()}) is higher or equal!\n\nKeep collecting to beat your record.`);
+                    return;
+                }
+                
+                let result;
+                if (existing) {
+                    // Update existing entry
+                    result = await supabase
+                        .from('Leaderboard')
+                        .update({
+                            score: data.score,
+                            pets: data.pets,
+                            level25: data.level25,
+                            rare: data.rare,
+                            epic: data.epic,
+                            created_at: new Date().toISOString()
+                        })
+                        .eq('id', existing.id);
+                } else {
+                    // Insert new entry
+                    result = await supabase
+                        .from('Leaderboard')
+                        .insert({
+                            player: data.player,
+                            realm: data.realm,
+                            score: data.score,
+                            pets: data.pets,
+                            level25: data.level25,
+                            rare: data.rare,
+                            epic: data.epic
+                        });
+                }
+                
+                if (result.error) {
+                    throw result.error;
+                }
+                
+                // Success!
+                showCopyFeedback();
+                document.getElementById('copyFeedback').textContent = '✓ Score submitted!';
+                
+                // Refresh the leaderboard
+                await renderLeaderboard();
+                
+            } catch (err) {
+                console.error('Submit error:', err);
+                alert('Error submitting score: ' + (err.message || 'Unknown error'));
+            }
         }
         
         // Show copy feedback toast
@@ -1471,10 +1510,38 @@
             }, 2500);
         }
         
+        // Fetch leaderboard from Supabase
+        async function fetchLeaderboard() {
+            try {
+                const { data, error } = await supabase
+                    .from('Leaderboard')
+                    .select('*')
+                    .order('score', { ascending: false })
+                    .limit(50);
+                
+                if (error) {
+                    console.error('Error fetching leaderboard:', error);
+                    return [];
+                }
+                
+                return data || [];
+            } catch (err) {
+                console.error('Leaderboard fetch failed:', err);
+                return [];
+            }
+        }
+        
         // Render leaderboard table
-        function renderLeaderboard() {
+        async function renderLeaderboard() {
             const tbody = document.getElementById('leaderboardBody');
             const empty = document.getElementById('leaderboardEmpty');
+            
+            // Show loading state
+            tbody.innerHTML = '<tr><td colspan="6" style="text-align:center;color:#888;">Loading...</td></tr>';
+            empty.style.display = 'none';
+            
+            // Fetch fresh data
+            LEADERBOARD_DATA = await fetchLeaderboard();
             
             if (LEADERBOARD_DATA.length === 0) {
                 tbody.innerHTML = '';
@@ -1484,10 +1551,7 @@
             
             empty.style.display = 'none';
             
-            // Sort by score descending
-            const sorted = [...LEADERBOARD_DATA].sort((a, b) => b.score - a.score);
-            
-            tbody.innerHTML = sorted.map((entry, index) => {
+            tbody.innerHTML = LEADERBOARD_DATA.map((entry, index) => {
                 const rank = index + 1;
                 let trophy = '';
                 let rankClass = '';
@@ -1496,6 +1560,9 @@
                 else if (rank === 2) { trophy = '🥈'; rankClass = 'rank-2'; }
                 else if (rank === 3) { trophy = '🥉'; rankClass = 'rank-3'; }
                 
+                // Format date nicely
+                const date = entry.created_at ? new Date(entry.created_at).toLocaleDateString() : 'N/A';
+                
                 return `
                     <tr>
                         <td class="rank ${rankClass}"><span class="trophy">${trophy}</span>${rank}</td>
@@ -1503,7 +1570,7 @@
                         <td class="score">${entry.score.toLocaleString()}</td>
                         <td>${entry.pets}</td>
                         <td>${entry.level25}</td>
-                        <td class="date">${entry.date}</td>
+                        <td class="date">${date}</td>
                     </tr>
                 `;
             }).join('');
