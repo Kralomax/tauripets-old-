@@ -1,0 +1,800 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TauriPets Collection Viewer</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
+            min-height: 100vh;
+            color: #e0e0e0;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        
+        header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        
+        h1 {
+            color: #00ff88;
+            font-size: 2.5rem;
+            text-shadow: 0 0 20px rgba(0, 255, 136, 0.5);
+            margin-bottom: 10px;
+        }
+        
+        .subtitle {
+            color: #888;
+            font-size: 1rem;
+        }
+        
+        /* Upload Area */
+        .upload-area {
+            border: 3px dashed #00ff88;
+            border-radius: 15px;
+            padding: 40px;
+            text-align: center;
+            margin-bottom: 30px;
+            background: rgba(0, 255, 136, 0.05);
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+        
+        .upload-area:hover, .upload-area.dragover {
+            background: rgba(0, 255, 136, 0.15);
+            border-color: #00ffaa;
+        }
+        
+        .upload-area h2 {
+            color: #00ff88;
+            margin-bottom: 15px;
+        }
+        
+        .upload-area p {
+            color: #aaa;
+            margin-bottom: 15px;
+        }
+        
+        .upload-area input[type="file"] {
+            display: none;
+        }
+        
+        .upload-btn {
+            background: linear-gradient(135deg, #00ff88, #00cc6a);
+            color: #1a1a2e;
+            border: none;
+            padding: 12px 30px;
+            border-radius: 25px;
+            font-size: 1rem;
+            font-weight: bold;
+            cursor: pointer;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+        
+        .upload-btn:hover {
+            transform: scale(1.05);
+            box-shadow: 0 5px 20px rgba(0, 255, 136, 0.4);
+        }
+        
+        .file-path {
+            margin-top: 20px;
+            padding: 15px;
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: 8px;
+            font-family: monospace;
+            font-size: 0.85rem;
+            color: #ffd700;
+            word-break: break-all;
+        }
+        
+        /* Stats Dashboard */
+        .stats-dashboard {
+            display: none;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 15px;
+            margin-bottom: 30px;
+        }
+        
+        .stat-card {
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 12px;
+            padding: 20px;
+            text-align: center;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        
+        .stat-card .value {
+            font-size: 2rem;
+            font-weight: bold;
+            color: #00ff88;
+        }
+        
+        .stat-card .label {
+            color: #888;
+            font-size: 0.9rem;
+            margin-top: 5px;
+        }
+        
+        .stat-card.rare .value { color: #1eff00; }   /* Rare - Green */
+        .stat-card.epic .value { color: #0070dd; }   /* Epic - Blue */
+        .stat-card.legendary .value { color: #a335ee; } /* Legendary - Purple */
+        
+        /* Progress Bar */
+        .progress-container {
+            display: none;
+            margin-bottom: 30px;
+        }
+        
+        .progress-bar {
+            height: 30px;
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: 15px;
+            overflow: hidden;
+            position: relative;
+        }
+        
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #00ff88, #00cc6a);
+            border-radius: 15px;
+            transition: width 0.5s ease;
+        }
+        
+        .progress-text {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            font-weight: bold;
+            text-shadow: 0 0 5px rgba(0, 0, 0, 0.8);
+        }
+        
+        /* Filters */
+        .filters {
+            display: none;
+            flex-wrap: wrap;
+            gap: 15px;
+            margin-bottom: 25px;
+            padding: 20px;
+            background: rgba(0, 0, 0, 0.2);
+            border-radius: 12px;
+        }
+        
+        .filter-group {
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+        }
+        
+        .filter-group label {
+            font-size: 0.85rem;
+            color: #888;
+        }
+        
+        .filter-group input, .filter-group select {
+            padding: 10px 15px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 8px;
+            background: rgba(0, 0, 0, 0.3);
+            color: #fff;
+            font-size: 0.95rem;
+        }
+        
+        .filter-group input:focus, .filter-group select:focus {
+            outline: none;
+            border-color: #00ff88;
+        }
+        
+        #searchInput {
+            min-width: 200px;
+        }
+        
+        /* Pet Grid */
+        .pet-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 15px;
+        }
+        
+        .pet-card {
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 12px;
+            padding: 15px;
+            display: flex;
+            gap: 15px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+        
+        .pet-card:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+        }
+        
+        .pet-card.quality-0 { border-left: 4px solid #9d9d9d; } /* Poor - Gray */
+        .pet-card.quality-1 { border-left: 4px solid #9d9d9d; } /* Common - Gray */
+        .pet-card.quality-2 { border-left: 4px solid #ffffff; } /* Uncommon - White */
+        .pet-card.quality-3 { border-left: 4px solid #1eff00; } /* Rare - Green */
+        .pet-card.quality-4 { border-left: 4px solid #0070dd; } /* Epic - Blue */
+        .pet-card.quality-5 { border-left: 4px solid #a335ee; } /* Legendary - Purple */
+        
+        .pet-icon {
+            width: 50px;
+            height: 50px;
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.8rem;
+            flex-shrink: 0;
+        }
+        
+        .pet-info {
+            flex: 1;
+            min-width: 0;
+        }
+        
+        .pet-name {
+            font-weight: bold;
+            font-size: 1.1rem;
+            margin-bottom: 5px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .pet-name .favorite { color: #ffd700; }
+        
+        .pet-name.quality-0 { color: #9d9d9d; } /* Poor - Gray */
+        .pet-name.quality-1 { color: #9d9d9d; } /* Common - Gray */
+        .pet-name.quality-2 { color: #ffffff; } /* Uncommon - White */
+        .pet-name.quality-3 { color: #1eff00; } /* Rare - Green */
+        .pet-name.quality-4 { color: #0070dd; } /* Epic - Blue */
+        .pet-name.quality-5 { color: #a335ee; } /* Legendary - Purple */
+        
+        .pet-details {
+            font-size: 0.85rem;
+            color: #aaa;
+        }
+        
+        .pet-stats {
+            display: flex;
+            gap: 10px;
+            margin-top: 8px;
+            font-size: 0.8rem;
+        }
+        
+        .pet-stats span {
+            padding: 3px 8px;
+            border-radius: 4px;
+            background: rgba(0, 0, 0, 0.3);
+        }
+        
+        .stat-health { color: #00ff88; }
+        .stat-power { color: #ff6600; }
+        .stat-speed { color: #00ccff; }
+        
+        .custom-name {
+            font-size: 0.8rem;
+            color: #ffd700;
+            font-style: italic;
+        }
+        
+        /* Family icons */
+        .family-icon {
+            font-size: 0.9rem;
+        }
+        
+        /* Pet count display */
+        .pet-count {
+            display: none;
+            text-align: center;
+            padding: 15px;
+            color: #888;
+            font-size: 0.95rem;
+        }
+        
+        /* Player info */
+        .player-info {
+            display: none;
+            text-align: center;
+            margin-bottom: 20px;
+            padding: 15px;
+            background: rgba(0, 0, 0, 0.2);
+            border-radius: 12px;
+        }
+        
+        .player-info h2 {
+            color: #00ff88;
+            margin-bottom: 5px;
+        }
+        
+        .player-info .export-date {
+            color: #666;
+            font-size: 0.85rem;
+        }
+        
+        /* No results */
+        .no-results {
+            text-align: center;
+            padding: 40px;
+            color: #666;
+            display: none;
+        }
+        
+        /* Family filter buttons */
+        .family-filters {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin-top: 10px;
+        }
+        
+        .family-btn {
+            padding: 6px 12px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 20px;
+            background: rgba(0, 0, 0, 0.3);
+            color: #aaa;
+            cursor: pointer;
+            font-size: 0.85rem;
+            transition: all 0.2s;
+        }
+        
+        .family-btn:hover, .family-btn.active {
+            background: rgba(0, 255, 136, 0.2);
+            border-color: #00ff88;
+            color: #00ff88;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>🐉 TauriPets Viewer</h1>
+            <p class="subtitle">Battle Pet Collection Tracker for TauriWoW</p>
+        </header>
+        
+        <div class="upload-area" id="uploadArea">
+            <h2>📁 Load Your Collection</h2>
+            <p>Drag & drop your <strong>TauriPetsGUI.lua</strong> file here</p>
+            <p class="file-path">📂 WTF/Account/YOURNAME/SavedVariables/TauriPetsGUI.lua</p>
+            <input type="file" id="fileInput" accept=".lua">
+            <button class="upload-btn" onclick="document.getElementById('fileInput').click()">Choose File</button>
+        </div>
+        
+        <div class="player-info" id="playerInfo">
+            <h2 id="playerName">Player Name</h2>
+            <div class="export-date" id="exportDate">Exported: --</div>
+        </div>
+        
+        <div class="progress-container" id="progressContainer">
+            <div class="progress-bar">
+                <div class="progress-fill" id="progressFill"></div>
+                <div class="progress-text" id="progressText">0%</div>
+            </div>
+        </div>
+        
+        <div class="stats-dashboard" id="statsDashboard">
+            <div class="stat-card">
+                <div class="value" id="totalPets">0</div>
+                <div class="label">Total Pets</div>
+            </div>
+            <div class="stat-card">
+                <div class="value" id="level25Pets">0</div>
+                <div class="label">Level 25</div>
+            </div>
+            <div class="stat-card rare">
+                <div class="value" id="rarePets">0</div>
+                <div class="label">Rare+</div>
+            </div>
+            <div class="stat-card epic">
+                <div class="value" id="epicPets">0</div>
+                <div class="label">Epic+</div>
+            </div>
+            <div class="stat-card">
+                <div class="value" id="favoritePets">0</div>
+                <div class="label">⭐ Favorites</div>
+            </div>
+        </div>
+        
+        <div class="filters" id="filters">
+            <div class="filter-group">
+                <label>Search</label>
+                <input type="text" id="searchInput" placeholder="Pet name...">
+            </div>
+            <div class="filter-group">
+                <label>Quality</label>
+                <select id="qualityFilter">
+                    <option value="">All Qualities</option>
+                    <option value="2">Uncommon+</option>
+                    <option value="3">Rare+</option>
+                    <option value="4">Epic+</option>
+                </select>
+            </div>
+            <div class="filter-group">
+                <label>Level</label>
+                <select id="levelFilter">
+                    <option value="">All Levels</option>
+                    <option value="25">Level 25</option>
+                    <option value="20">Level 20+</option>
+                    <option value="10">Level 10+</option>
+                </select>
+            </div>
+            <div class="filter-group">
+                <label>Family</label>
+                <select id="familyFilter">
+                    <option value="">All Families</option>
+                    <option value="1">Humanoid</option>
+                    <option value="2">Dragonkin</option>
+                    <option value="3">Flying</option>
+                    <option value="4">Undead</option>
+                    <option value="5">Critter</option>
+                    <option value="6">Magic</option>
+                    <option value="7">Elemental</option>
+                    <option value="8">Beast</option>
+                    <option value="9">Aquatic</option>
+                    <option value="10">Mechanical</option>
+                </select>
+            </div>
+        </div>
+        
+        <div class="pet-count" id="petCount">Showing 0 pets</div>
+        
+        <div class="pet-grid" id="petGrid"></div>
+        
+        <div class="no-results" id="noResults">No pets match your filters</div>
+    </div>
+    
+    <script>
+        // Pet data
+        let petData = null;
+        
+        // Family names and icons
+        const families = {
+            1: { name: 'Humanoid', icon: '👤' },
+            2: { name: 'Dragonkin', icon: '🐉' },
+            3: { name: 'Flying', icon: '🦅' },
+            4: { name: 'Undead', icon: '💀' },
+            5: { name: 'Critter', icon: '🐰' },
+            6: { name: 'Magic', icon: '✨' },
+            7: { name: 'Elemental', icon: '🔥' },
+            8: { name: 'Beast', icon: '🐾' },
+            9: { name: 'Aquatic', icon: '🐟' },
+            10: { name: 'Mechanical', icon: '⚙️' }
+        };
+        
+        // Quality names
+        const qualities = {
+            0: 'Poor',
+            1: 'Common',
+            2: 'Uncommon',
+            3: 'Rare',
+            4: 'Epic',
+            5: 'Legendary'
+        };
+        
+        // File handling
+        const uploadArea = document.getElementById('uploadArea');
+        const fileInput = document.getElementById('fileInput');
+        
+        uploadArea.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            uploadArea.classList.add('dragover');
+        });
+        
+        uploadArea.addEventListener('dragleave', () => {
+            uploadArea.classList.remove('dragover');
+        });
+        
+        uploadArea.addEventListener('drop', (e) => {
+            e.preventDefault();
+            uploadArea.classList.remove('dragover');
+            const file = e.dataTransfer.files[0];
+            if (file) processFile(file);
+        });
+        
+        fileInput.addEventListener('change', (e) => {
+            const file = e.target.files[0];
+            if (file) processFile(file);
+        });
+        
+        function processFile(file) {
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                try {
+                    const content = e.target.result;
+                    petData = parseLuaFile(content);
+                    displayCollection();
+                } catch (err) {
+                    alert('Error parsing file: ' + err.message);
+                    console.error(err);
+                }
+            };
+            reader.readAsText(file);
+        }
+        
+        function parseLuaFile(content) {
+            // Try to find TauriPetsGUI_Export first (new format), then TauriPetsDB (old format)
+            let match = content.match(/TauriPetsGUI_Export\s*=\s*\{/);
+            let varName = 'TauriPetsGUI_Export';
+            
+            if (!match) {
+                match = content.match(/TauriPetsDB\s*=\s*\{/);
+                varName = 'TauriPetsDB';
+            }
+            
+            if (!match) {
+                throw new Error('Could not find pet data. Make sure you exported from TauriPetsGUI or TauriPetsExporter.');
+            }
+            
+            // Parse the Lua table manually
+            const data = {
+                playerName: '',
+                realmName: '',
+                exportDate: '',
+                totalPets: 0,
+                ownedPets: 0,
+                pets: []
+            };
+            
+            // Extract player name
+            const playerMatch = content.match(/\["player"\]\s*=\s*"([^"]+)"/);
+            if (playerMatch) {
+                const parts = playerMatch[1].split('-');
+                data.playerName = parts[0] || 'Unknown';
+                data.realmName = parts.slice(1).join('-') || 'TauriWoW';
+            }
+            
+            // Extract export date
+            const dateMatch = content.match(/\["exportDate"\]\s*=\s*"([^"]+)"/);
+            if (dateMatch) {
+                data.exportDate = dateMatch[1];
+            }
+            
+            // Extract totalPets/maxPets
+            const totalMatch = content.match(/\["totalPets"\]\s*=\s*(\d+)/);
+            const maxMatch = content.match(/\["maxPets"\]\s*=\s*(\d+)/);
+            if (totalMatch) data.ownedPets = parseInt(totalMatch[1]);
+            if (maxMatch) data.totalPets = parseInt(maxMatch[1]);
+            
+            // Extract pets array - find each pet block
+            const petsSection = content.match(/\["pets"\]\s*=\s*\{([\s\S]*?)\},\s*\["player"\]/);
+            if (!petsSection) {
+                // Try alternate format where pets comes after other fields
+                const altPetsSection = content.match(/\["pets"\]\s*=\s*\{([\s\S]+)\}\s*,?\s*\}/);
+                if (altPetsSection) {
+                    parsePetsFromSection(altPetsSection[1], data);
+                }
+            } else {
+                parsePetsFromSection(petsSection[1], data);
+            }
+            
+            // If ownedPets wasn't set, use pets array length
+            if (!data.ownedPets) {
+                data.ownedPets = data.pets.length;
+            }
+            
+            return data;
+        }
+        
+        function parsePetsFromSection(petsContent, data) {
+            // Split by pet entries (each starts with { and ends with }, -- [number])
+            const petBlocks = petsContent.split(/\},\s*--\s*\[\d+\]/);
+            
+            for (const block of petBlocks) {
+                if (!block.trim() || !block.includes('speciesID')) continue;
+                
+                const pet = {};
+                
+                // Extract string values
+                const stringFields = ['name', 'speciesName', 'customName', 'quality', 'family', 'petID', 'breed'];
+                for (const field of stringFields) {
+                    const match = block.match(new RegExp(`\\["${field}"\\]\\s*=\\s*"([^"]*)"`));
+                    if (match) pet[field] = match[1];
+                }
+                
+                // Extract number values
+                const numberFields = ['speciesID', 'familyID', 'level', 'qualityID', 'health', 'power', 'speed', 'petType'];
+                for (const field of numberFields) {
+                    const match = block.match(new RegExp(`\\["${field}"\\]\\s*=\\s*(-?\\d+)`));
+                    if (match) pet[field] = parseInt(match[1]);
+                }
+                
+                // Extract boolean values
+                const boolFields = ['favorite', 'canBattle', 'isTradeable', 'isUnique'];
+                for (const field of boolFields) {
+                    const match = block.match(new RegExp(`\\["${field}"\\]\\s*=\\s*(true|false)`));
+                    if (match) pet[field] = match[1] === 'true';
+                }
+                
+                // Normalize field names between old and new format
+                if (!pet.speciesName && pet.name) pet.speciesName = pet.name;
+                if (!pet.petType && pet.familyID) pet.petType = pet.familyID;
+                if (pet.qualityID !== undefined) pet.quality = pet.qualityID;
+                
+                // Only add if we have basic pet info
+                if (pet.speciesName || pet.name) {
+                    data.pets.push(pet);
+                }
+            }
+        }
+        
+        function displayCollection() {
+            if (!petData) return;
+            
+            // Show all sections
+            document.getElementById('playerInfo').style.display = 'block';
+            document.getElementById('progressContainer').style.display = 'block';
+            document.getElementById('statsDashboard').style.display = 'grid';
+            document.getElementById('filters').style.display = 'flex';
+            document.getElementById('petCount').style.display = 'block';
+            
+            // Player info
+            const playerName = petData.playerName || 'Unknown';
+            const realmName = petData.realmName || 'TauriWoW';
+            document.getElementById('playerName').textContent = `${playerName} - ${realmName}`;
+            document.getElementById('exportDate').textContent = `Exported: ${petData.exportDate || 'Unknown'}`;
+            
+            // Calculate stats - handle both quality formats
+            const pets = petData.pets || [];
+            const level25 = pets.filter(p => p.level === 25).length;
+            const rare = pets.filter(p => {
+                const q = typeof p.quality === 'number' ? p.quality : (p.qualityID || 0);
+                return q >= 3;
+            }).length;
+            const epic = pets.filter(p => {
+                const q = typeof p.quality === 'number' ? p.quality : (p.qualityID || 0);
+                return q >= 4;
+            }).length;
+            const favorites = pets.filter(p => p.favorite).length;
+            
+            // Update stats
+            document.getElementById('totalPets').textContent = pets.length;
+            document.getElementById('level25Pets').textContent = level25;
+            document.getElementById('rarePets').textContent = rare;
+            document.getElementById('epicPets').textContent = epic;
+            document.getElementById('favoritePets').textContent = favorites;
+            
+            // Progress bar
+            const totalPossible = petData.totalPets || petData.maxPets || 1000;
+            const ownedCount = petData.ownedPets || pets.length;
+            const percentage = Math.min(100, (ownedCount / totalPossible * 100)).toFixed(1);
+            document.getElementById('progressFill').style.width = percentage + '%';
+            document.getElementById('progressText').textContent = `${ownedCount} / ${totalPossible} (${percentage}%)`;
+            
+            // Render pets
+            renderPets();
+            
+            // Setup filters
+            setupFilters();
+        }
+        
+        function renderPets() {
+            const grid = document.getElementById('petGrid');
+            const pets = getFilteredPets();
+            
+            document.getElementById('petCount').textContent = `Showing ${pets.length} pets`;
+            document.getElementById('noResults').style.display = pets.length === 0 ? 'block' : 'none';
+            
+            grid.innerHTML = pets.map(pet => {
+                const familyId = pet.petType || pet.familyID || 0;
+                const family = families[familyId] || { name: pet.family || 'Unknown', icon: '❓' };
+                
+                // Handle quality - could be number or string
+                let qualityNum = 0;
+                let qualityName = 'Unknown';
+                if (typeof pet.quality === 'number') {
+                    qualityNum = pet.quality;
+                    qualityName = qualities[qualityNum] || 'Unknown';
+                } else if (pet.qualityID !== undefined) {
+                    qualityNum = pet.qualityID;
+                    qualityName = pet.quality || qualities[qualityNum] || 'Unknown';
+                } else if (typeof pet.quality === 'string') {
+                    qualityName = pet.quality;
+                    // Try to reverse-lookup quality number
+                    for (const [num, name] of Object.entries(qualities)) {
+                        if (name === pet.quality) {
+                            qualityNum = parseInt(num);
+                            break;
+                        }
+                    }
+                }
+                
+                return `
+                    <div class="pet-card quality-${qualityNum}">
+                        <div class="pet-icon">${family.icon}</div>
+                        <div class="pet-info">
+                            <div class="pet-name quality-${qualityNum}">
+                                ${pet.favorite ? '<span class="favorite">⭐</span>' : ''}
+                                ${pet.speciesName || pet.name || 'Unknown Pet'}
+                                ${pet.breed && pet.breed !== 'Unknown' ? `<span style="color:#888;font-size:0.8rem">(${pet.breed})</span>` : ''}
+                            </div>
+                            ${pet.customName ? `<div class="custom-name">"${pet.customName}"</div>` : ''}
+                            <div class="pet-details">
+                                Level ${pet.level || 1} ${qualityName} ${family.name}
+                            </div>
+                            <div class="pet-stats">
+                                <span class="stat-health">❤️ ${pet.health || 0}</span>
+                                <span class="stat-power">⚔️ ${pet.power || 0}</span>
+                                <span class="stat-speed">⚡ ${pet.speed || 0}</span>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+        
+        function getFilteredPets() {
+            if (!petData || !petData.pets) return [];
+            
+            let pets = [...petData.pets];
+            
+            // Search filter
+            const search = document.getElementById('searchInput').value.toLowerCase();
+            if (search) {
+                pets = pets.filter(p => 
+                    (p.speciesName && p.speciesName.toLowerCase().includes(search)) ||
+                    (p.customName && p.customName.toLowerCase().includes(search))
+                );
+            }
+            
+            // Quality filter - handle both number and string quality
+            const quality = document.getElementById('qualityFilter').value;
+            if (quality) {
+                const minQuality = parseInt(quality);
+                pets = pets.filter(p => {
+                    const petQuality = typeof p.quality === 'number' ? p.quality : (p.qualityID || 0);
+                    return petQuality >= minQuality;
+                });
+            }
+            
+            // Level filter
+            const level = document.getElementById('levelFilter').value;
+            if (level) {
+                pets = pets.filter(p => p.level >= parseInt(level));
+            }
+            
+            // Family filter - handle both petType and familyID
+            const family = document.getElementById('familyFilter').value;
+            if (family) {
+                const familyId = parseInt(family);
+                pets = pets.filter(p => (p.petType || p.familyID) === familyId);
+            }
+            
+            // Sort: favorites first, then by level desc, then by quality desc
+            pets.sort((a, b) => {
+                if (a.favorite !== b.favorite) return b.favorite ? 1 : -1;
+                if (a.level !== b.level) return (b.level || 0) - (a.level || 0);
+                const aQuality = typeof a.quality === 'number' ? a.quality : (a.qualityID || 0);
+                const bQuality = typeof b.quality === 'number' ? b.quality : (b.qualityID || 0);
+                if (aQuality !== bQuality) return bQuality - aQuality;
+                return (a.speciesName || '').localeCompare(b.speciesName || '');
+            });
+            
+            return pets;
+        }
+        
+        function setupFilters() {
+            document.getElementById('searchInput').addEventListener('input', renderPets);
+            document.getElementById('qualityFilter').addEventListener('change', renderPets);
+            document.getElementById('levelFilter').addEventListener('change', renderPets);
+            document.getElementById('familyFilter').addEventListener('change', renderPets);
+        }
+    </script>
+</body>
+</html>
