@@ -41,6 +41,17 @@
             font-size: 1rem;
         }
         
+        .disclaimer {
+            color: #ff9800;
+            font-size: 0.75rem;
+            margin-top: 8px;
+            padding: 6px 12px;
+            background: rgba(255, 152, 0, 0.1);
+            border: 1px solid rgba(255, 152, 0, 0.3);
+            border-radius: 15px;
+            display: inline-block;
+        }
+        
         /* Tab Navigation */
         .tab-nav {
             display: flex;
@@ -713,14 +724,14 @@
             gap: 8px;
         }
         
-        .submit-btn.discord {
-            background: linear-gradient(135deg, #5865F2, #4752C4);
-            color: white;
+        .submit-btn.primary {
+            background: linear-gradient(135deg, #00ff88, #00cc6a);
+            color: #1a1a2e;
         }
         
-        .submit-btn.discord:hover {
+        .submit-btn.primary:hover {
             transform: scale(1.05);
-            box-shadow: 0 5px 20px rgba(88, 101, 242, 0.4);
+            box-shadow: 0 5px 20px rgba(0, 255, 136, 0.4);
         }
         
         .submit-btn:disabled {
@@ -830,36 +841,39 @@
             margin-right: 5px;
         }
         
-        /* How to Submit */
-        .how-to-submit {
+        /* How it Works */
+        .how-it-works {
             margin-top: 30px;
             padding: 20px;
-            background: rgba(88, 101, 242, 0.1);
-            border: 1px solid rgba(88, 101, 242, 0.3);
+            background: rgba(0, 255, 136, 0.05);
+            border: 1px solid rgba(0, 255, 136, 0.2);
             border-radius: 10px;
         }
         
-        .how-to-submit h4 {
-            color: #5865F2;
+        .how-it-works h4 {
+            color: #00ff88;
             margin-bottom: 10px;
             font-size: 0.95rem;
         }
         
-        .how-to-submit ol {
+        .how-it-works ol {
             margin-left: 20px;
             color: #aaa;
             font-size: 0.85rem;
         }
         
-        .how-to-submit li {
+        .how-it-works li {
             margin-bottom: 5px;
         }
         
-        .how-to-submit code {
-            background: rgba(0, 0, 0, 0.3);
-            padding: 2px 6px;
-            border-radius: 3px;
-            color: #00ff88;
+        .disclaimer-small {
+            margin-top: 15px;
+            padding: 10px;
+            background: rgba(255, 152, 0, 0.1);
+            border: 1px solid rgba(255, 152, 0, 0.2);
+            border-radius: 6px;
+            font-size: 0.75rem;
+            color: #ff9800;
         }
     </style>
 </head>
@@ -868,6 +882,7 @@
         <header>
             <h1>🐉 TauriPets</h1>
             <p class="subtitle">Battle Pet Collection Tracker for TauriWoW</p>
+            <p class="disclaimer">⚠️ Unofficial fan project · Not affiliated with TauriWoW or Crystalsong staff · Use at your own risk</p>
         </header>
         
         <!-- Tab Navigation -->
@@ -1094,15 +1109,16 @@
                     </div>
                 </div>
                 
-                <!-- How to Submit -->
-                <div class="how-to-submit">
-                    <h4>📝 How to Submit Your Score</h4>
+                <!-- How it Works -->
+                <div class="how-it-works">
+                    <h4>📝 How It Works</h4>
                     <ol>
                         <li>Load your collection in the <strong>My Collection</strong> tab</li>
-                        <li>Click <strong>"Copy Score for Discord"</strong> above</li>
-                        <li>Paste in the <code>#tauripets-scores</code> channel on Discord</li>
-                        <li>Scores are verified and added to the leaderboard weekly!</li>
+                        <li>Your personal best is automatically saved locally</li>
+                        <li>Click <strong>"Submit Score to Leaderboard"</strong> to share your score</li>
+                        <li>Compete with other TauriWoW pet collectors!</li>
                     </ol>
+                    <p class="disclaimer-small">⚠️ This is an unofficial fan project. Not affiliated with TauriWoW/Crystalsong. Data is stored on third-party servers. Use at your own risk.</p>
                 </div>
             </div>
         </div>
@@ -1389,15 +1405,15 @@
                     ${pb.player}-${pb.realm} • Best: ${pb.date}
                 </div>
                 <div class="submit-section">
-                    <button class="submit-btn discord" onclick="copyScoreForDiscord()" ${!currentScoreData ? 'disabled' : ''}>
-                        📋 Copy Score for Discord
+                    <button class="submit-btn primary" onclick="submitScore()" ${!currentScoreData ? 'disabled' : ''}>
+                        🏆 Submit Score to Leaderboard
                     </button>
                 </div>
             `;
         }
         
-        // Copy score to clipboard for Discord submission
-        function copyScoreForDiscord() {
+        // Submit score to leaderboard (Supabase integration placeholder)
+        function submitScore() {
             const pb = loadPersonalBest();
             if (!pb) {
                 alert('Load your collection first!');
@@ -1415,30 +1431,35 @@
                 epic: currentScoreData.stats.epicCount
             } : pb;
             
-            const discordText = `🐉 **TauriPets Score Submission**
-━━━━━━━━━━━━━━━━━━━━
-👤 **Player:** ${data.player}-${data.realm}
-🏆 **Score:** ${data.score.toLocaleString()}
-📦 **Pets:** ${data.pets} unique
-⭐ **Level 25:** ${data.level25}
-💎 **Rare+:** ${data.rare || 0}
-📅 **Date:** ${new Date().toISOString().split('T')[0]}
-━━━━━━━━━━━━━━━━━━━━
-Submitted via https://kralomax.github.io/tauripets`;
+            // TODO: Replace with Supabase insert
+            // For now, show what would be submitted
+            console.log('Score submission data:', data);
             
-            navigator.clipboard.writeText(discordText).then(() => {
-                showCopyFeedback();
-            }).catch(err => {
-                console.error('Copy failed:', err);
-                // Fallback for older browsers
-                const textarea = document.createElement('textarea');
-                textarea.value = discordText;
-                document.body.appendChild(textarea);
-                textarea.select();
-                document.execCommand('copy');
-                document.body.removeChild(textarea);
-                showCopyFeedback();
-            });
+            // Placeholder until Supabase is set up
+            alert(`🏆 Score Submission\n\nPlayer: ${data.player}-${data.realm}\nScore: ${data.score.toLocaleString()}\nPets: ${data.pets}\nLevel 25: ${data.level25}\n\n⚠️ Leaderboard coming soon!\nYour personal best is saved locally.`);
+            
+            /* 
+            // SUPABASE INTEGRATION (uncomment when ready):
+            const { data: result, error } = await supabase
+                .from('leaderboard')
+                .upsert({
+                    player: data.player,
+                    realm: data.realm,
+                    score: data.score,
+                    pets: data.pets,
+                    level25: data.level25,
+                    rare: data.rare,
+                    epic: data.epic,
+                    updated_at: new Date().toISOString()
+                }, { onConflict: 'player,realm' });
+            
+            if (error) {
+                alert('Error submitting score: ' + error.message);
+            } else {
+                showCopyFeedback('Score submitted!');
+                renderLeaderboard();
+            }
+            */
         }
         
         // Show copy feedback toast
