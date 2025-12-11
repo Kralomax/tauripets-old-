@@ -176,6 +176,91 @@
         .stat-card.epic .value { color: #0070dd; }
         .stat-card.legendary .value { color: #a335ee; }
         
+        /* Score Display */
+        .score-display {
+            display: none;
+            text-align: center;
+            margin-bottom: 25px;
+            padding: 20px;
+            background: linear-gradient(135deg, rgba(255, 215, 0, 0.1), rgba(255, 140, 0, 0.1));
+            border: 2px solid rgba(255, 215, 0, 0.3);
+            border-radius: 15px;
+        }
+        
+        .score-display.visible {
+            display: block;
+        }
+        
+        .score-label {
+            font-size: 0.9rem;
+            color: #aaa;
+            margin-bottom: 5px;
+        }
+        
+        .score-value {
+            font-size: 3rem;
+            font-weight: bold;
+            color: #ffd700;
+            text-shadow: 0 0 20px rgba(255, 215, 0, 0.5);
+        }
+        
+        .score-breakdown {
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+            margin-top: 15px;
+            flex-wrap: wrap;
+        }
+        
+        .score-part {
+            font-size: 0.8rem;
+            color: #888;
+        }
+        
+        .score-part span {
+            color: #fff;
+            font-weight: bold;
+        }
+        
+        /* Achievements */
+        .achievements {
+            display: none;
+            margin-bottom: 25px;
+        }
+        
+        .achievements.visible {
+            display: block;
+        }
+        
+        .achievements h3 {
+            color: #ffd700;
+            font-size: 1rem;
+            margin-bottom: 10px;
+            text-align: center;
+        }
+        
+        .achievement-list {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            justify-content: center;
+        }
+        
+        .achievement {
+            padding: 6px 12px;
+            background: rgba(255, 215, 0, 0.1);
+            border: 1px solid rgba(255, 215, 0, 0.3);
+            border-radius: 20px;
+            font-size: 0.8rem;
+            color: #ffd700;
+        }
+        
+        .achievement.locked {
+            background: rgba(100, 100, 100, 0.1);
+            border-color: rgba(100, 100, 100, 0.3);
+            color: #555;
+        }
+        
         /* Progress Bar */
         .progress-container {
             display: none;
@@ -570,6 +655,23 @@ Then paste here!"></textarea>
                 <div class="export-date" id="exportDate">Exported: --</div>
             </div>
             
+            <!-- Score Display -->
+            <div class="score-display" id="scoreDisplay">
+                <div class="score-label">🏆 PET SCORE</div>
+                <div class="score-value" id="scoreValue">0</div>
+                <div class="score-breakdown">
+                    <div class="score-part">Quality: <span id="scoreQuality">0</span></div>
+                    <div class="score-part">Levels: <span id="scoreLevels">0</span></div>
+                    <div class="score-part">Bonuses: <span id="scoreBonuses">0</span></div>
+                </div>
+            </div>
+            
+            <!-- Achievements -->
+            <div class="achievements" id="achievementsSection">
+                <h3>🎖️ Achievements Unlocked</h3>
+                <div class="achievement-list" id="achievementList"></div>
+            </div>
+            
             <div class="progress-container" id="progressContainer">
                 <div class="progress-bar">
                     <div class="progress-fill" id="progressFill"></div>
@@ -864,6 +966,123 @@ Then paste here!"></textarea>
             quest: 'Quest', achievement: 'Achievement', 
             profession: 'Profession', promo: 'Promo'
         };
+        
+        // Quality points for scoring (WarcraftPets-inspired)
+        const QUALITY_POINTS = {
+            0: 2,   // Poor
+            1: 3,   // Common
+            2: 4,   // Uncommon
+            3: 5,   // Rare
+            4: 7,   // Epic
+            5: 12   // Legendary
+        };
+        
+        // Achievement definitions
+        const ACHIEVEMENTS = [
+            { id: 'collect50', name: '📦 Collector', desc: '50+ unique pets', check: (s) => s.uniqueCount >= 50, bonus: 100 },
+            { id: 'collect100', name: '📦 Dedicated', desc: '100+ unique pets', check: (s) => s.uniqueCount >= 100, bonus: 150 },
+            { id: 'collect250', name: '📦 Obsessed', desc: '250+ unique pets', check: (s) => s.uniqueCount >= 250, bonus: 250 },
+            { id: 'collect500', name: '📦 Insane', desc: '500+ unique pets', check: (s) => s.uniqueCount >= 500, bonus: 500 },
+            { id: 'train10', name: '⭐ Trainer', desc: '10+ level 25 pets', check: (s) => s.level25Count >= 10, bonus: 200 },
+            { id: 'train25', name: '⭐ Pro Trainer', desc: '25+ level 25 pets', check: (s) => s.level25Count >= 25, bonus: 300 },
+            { id: 'train50', name: '⭐ Elite Trainer', desc: '50+ level 25 pets', check: (s) => s.level25Count >= 50, bonus: 500 },
+            { id: 'families', name: '🌍 Zoologist', desc: 'All 10 families', check: (s) => s.familyCount >= 10, bonus: 100 },
+            { id: 'rare25', name: '💎 Quality Hunter', desc: '25+ rare or better', check: (s) => s.rareCount >= 25, bonus: 150 },
+            { id: 'epic10', name: '💜 Epic Collector', desc: '10+ epic or better', check: (s) => s.epicCount >= 10, bonus: 200 },
+        ];
+        
+        // Calculate pet score
+        function calculateScore(pets) {
+            if (!pets || pets.length === 0) return null;
+            
+            // Track unique species (best quality of each)
+            const uniquePets = {};
+            let level25Count = 0;
+            const familiesOwned = new Set();
+            let rareCount = 0;
+            let epicCount = 0;
+            
+            for (const pet of pets) {
+                const speciesID = pet.speciesID;
+                const quality = typeof pet.quality === 'number' ? pet.quality : (pet.qualityID || 0);
+                const level = pet.level || 1;
+                const family = pet.petType || pet.familyID || 0;
+                
+                // Only keep highest quality of each species
+                if (!uniquePets[speciesID] || quality > uniquePets[speciesID].quality ||
+                    (quality === uniquePets[speciesID].quality && level > uniquePets[speciesID].level)) {
+                    uniquePets[speciesID] = { quality, level, family };
+                }
+                
+                if (level === 25) level25Count++;
+                if (family) familiesOwned.add(family);
+                if (quality >= 3) rareCount++;
+                if (quality >= 4) epicCount++;
+            }
+            
+            // Calculate score components
+            let qualityScore = 0;
+            let levelScore = 0;
+            let totalLevels = 0;
+            
+            for (const speciesID in uniquePets) {
+                const pet = uniquePets[speciesID];
+                qualityScore += QUALITY_POINTS[pet.quality] || 2;
+                levelScore += pet.level * 0.12;
+                totalLevels += pet.level;
+            }
+            
+            // Calculate achievement bonuses
+            const stats = {
+                uniqueCount: Object.keys(uniquePets).length,
+                level25Count,
+                familyCount: familiesOwned.size,
+                rareCount,
+                epicCount,
+                totalLevels
+            };
+            
+            let bonusScore = 0;
+            const unlockedAchievements = [];
+            
+            for (const ach of ACHIEVEMENTS) {
+                if (ach.check(stats)) {
+                    bonusScore += ach.bonus;
+                    unlockedAchievements.push(ach);
+                }
+            }
+            
+            const totalScore = Math.floor(qualityScore + levelScore + bonusScore);
+            
+            return {
+                total: totalScore,
+                qualityScore: Math.floor(qualityScore),
+                levelScore: Math.floor(levelScore),
+                bonusScore,
+                stats,
+                unlockedAchievements
+            };
+        }
+        
+        // Display score
+        function displayScore(scoreData) {
+            if (!scoreData) return;
+            
+            document.getElementById('scoreDisplay').classList.add('visible');
+            document.getElementById('scoreValue').textContent = scoreData.total.toLocaleString();
+            document.getElementById('scoreQuality').textContent = scoreData.qualityScore.toLocaleString();
+            document.getElementById('scoreLevels').textContent = scoreData.levelScore.toLocaleString();
+            document.getElementById('scoreBonuses').textContent = '+' + scoreData.bonusScore.toLocaleString();
+            
+            // Display achievements
+            if (scoreData.unlockedAchievements.length > 0) {
+                document.getElementById('achievementsSection').classList.add('visible');
+                const list = document.getElementById('achievementList');
+                list.innerHTML = scoreData.unlockedAchievements.map(ach => 
+                    `<div class="achievement" title="${ach.desc}: +${ach.bonus}">${ach.name}</div>`
+                ).join('');
+            }
+        }
 
         // =====================================================
         // TAB NAVIGATION
@@ -936,7 +1155,7 @@ Then paste here!"></textarea>
             const lines = text.trim().split('\n');
             if (lines.length < 1) throw new Error('Empty data');
             
-            // Parse header: TAURIPETS:PlayerName:Realm:Date:Owned:Total
+            // Parse header: TAURIPETS:PlayerName:Realm:Date:Owned:Total:Score
             const header = lines[0].split(':');
             if (header[0] !== 'TAURIPETS') throw new Error('Invalid format');
             
@@ -946,6 +1165,7 @@ Then paste here!"></textarea>
                 exportDate: header[3] || '',
                 ownedPets: parseInt(header[4]) || 0,
                 totalPets: parseInt(header[5]) || 0,
+                addonScore: parseInt(header[6]) || 0, // Score calculated by addon
                 pets: []
             };
             
@@ -1153,6 +1373,10 @@ Then paste here!"></textarea>
             document.getElementById('progressFill').style.width = percentage + '%';
             document.getElementById('progressText').textContent = 
                 `${ownedCount} / ${totalPossible} (${percentage}%)`;
+            
+            // Calculate and display score
+            const scoreData = calculateScore(pets);
+            displayScore(scoreData);
             
             renderMyPets();
             setupMyFilters();
