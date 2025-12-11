@@ -604,6 +604,263 @@
         #pasteInput::placeholder {
             color: #666;
         }
+        
+        /* =====================================================
+           LEADERBOARD STYLES
+           ===================================================== */
+        .leaderboard-container {
+            max-width: 900px;
+            margin: 0 auto;
+        }
+        
+        .leaderboard-header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        
+        .leaderboard-header h2 {
+            color: #ffd700;
+            font-size: 1.8rem;
+            margin-bottom: 10px;
+            text-shadow: 0 0 20px rgba(255, 215, 0, 0.3);
+        }
+        
+        .leaderboard-header p {
+            color: #888;
+            font-size: 0.9rem;
+        }
+        
+        /* Personal Best Card */
+        .personal-best-card {
+            background: linear-gradient(135deg, rgba(0, 255, 136, 0.1), rgba(0, 200, 100, 0.05));
+            border: 2px solid rgba(0, 255, 136, 0.3);
+            border-radius: 15px;
+            padding: 25px;
+            margin-bottom: 30px;
+            text-align: center;
+        }
+        
+        .personal-best-card.empty {
+            border-color: rgba(255, 255, 255, 0.1);
+            background: rgba(255, 255, 255, 0.02);
+        }
+        
+        .personal-best-card h3 {
+            color: #00ff88;
+            font-size: 1rem;
+            margin-bottom: 15px;
+        }
+        
+        .personal-best-card.empty h3 {
+            color: #666;
+        }
+        
+        .pb-score {
+            font-size: 3rem;
+            font-weight: bold;
+            color: #00ff88;
+            text-shadow: 0 0 20px rgba(0, 255, 136, 0.4);
+        }
+        
+        .pb-details {
+            display: flex;
+            justify-content: center;
+            gap: 30px;
+            margin-top: 15px;
+            flex-wrap: wrap;
+        }
+        
+        .pb-detail {
+            text-align: center;
+        }
+        
+        .pb-detail .value {
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: #fff;
+        }
+        
+        .pb-detail .label {
+            font-size: 0.75rem;
+            color: #888;
+        }
+        
+        .pb-meta {
+            margin-top: 15px;
+            font-size: 0.8rem;
+            color: #666;
+        }
+        
+        /* Submit Button */
+        .submit-section {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            margin-top: 20px;
+            flex-wrap: wrap;
+        }
+        
+        .submit-btn {
+            padding: 12px 30px;
+            border: none;
+            border-radius: 25px;
+            font-size: 1rem;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .submit-btn.discord {
+            background: linear-gradient(135deg, #5865F2, #4752C4);
+            color: white;
+        }
+        
+        .submit-btn.discord:hover {
+            transform: scale(1.05);
+            box-shadow: 0 5px 20px rgba(88, 101, 242, 0.4);
+        }
+        
+        .submit-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none !important;
+        }
+        
+        .copy-feedback {
+            position: fixed;
+            bottom: 30px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: #00ff88;
+            color: #1a1a2e;
+            padding: 12px 25px;
+            border-radius: 25px;
+            font-weight: bold;
+            box-shadow: 0 5px 20px rgba(0, 255, 136, 0.4);
+            opacity: 0;
+            transition: opacity 0.3s;
+            z-index: 1000;
+        }
+        
+        .copy-feedback.show {
+            opacity: 1;
+        }
+        
+        /* Leaderboard Table */
+        .leaderboard-table-container {
+            background: rgba(0, 0, 0, 0.2);
+            border-radius: 15px;
+            padding: 20px;
+            overflow-x: auto;
+        }
+        
+        .leaderboard-table-container h3 {
+            color: #ffd700;
+            font-size: 1.2rem;
+            margin-bottom: 15px;
+            text-align: center;
+        }
+        
+        .leaderboard-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        
+        .leaderboard-table th {
+            text-align: left;
+            padding: 12px 15px;
+            background: rgba(255, 215, 0, 0.1);
+            color: #ffd700;
+            font-size: 0.85rem;
+            font-weight: bold;
+            border-bottom: 2px solid rgba(255, 215, 0, 0.2);
+        }
+        
+        .leaderboard-table td {
+            padding: 12px 15px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+            font-size: 0.9rem;
+        }
+        
+        .leaderboard-table tr:hover {
+            background: rgba(255, 255, 255, 0.03);
+        }
+        
+        .leaderboard-table .rank {
+            font-weight: bold;
+            width: 60px;
+        }
+        
+        .leaderboard-table .rank-1 { color: #ffd700; }
+        .leaderboard-table .rank-2 { color: #c0c0c0; }
+        .leaderboard-table .rank-3 { color: #cd7f32; }
+        
+        .leaderboard-table .player-name {
+            color: #00ff88;
+            font-weight: bold;
+        }
+        
+        .leaderboard-table .score {
+            color: #ffd700;
+            font-weight: bold;
+            font-size: 1.1rem;
+        }
+        
+        .leaderboard-table .date {
+            color: #666;
+            font-size: 0.8rem;
+        }
+        
+        .leaderboard-empty {
+            text-align: center;
+            padding: 40px;
+            color: #666;
+        }
+        
+        .leaderboard-empty p {
+            margin-bottom: 10px;
+        }
+        
+        /* Trophy icons */
+        .trophy {
+            font-size: 1.2rem;
+            margin-right: 5px;
+        }
+        
+        /* How to Submit */
+        .how-to-submit {
+            margin-top: 30px;
+            padding: 20px;
+            background: rgba(88, 101, 242, 0.1);
+            border: 1px solid rgba(88, 101, 242, 0.3);
+            border-radius: 10px;
+        }
+        
+        .how-to-submit h4 {
+            color: #5865F2;
+            margin-bottom: 10px;
+            font-size: 0.95rem;
+        }
+        
+        .how-to-submit ol {
+            margin-left: 20px;
+            color: #aaa;
+            font-size: 0.85rem;
+        }
+        
+        .how-to-submit li {
+            margin-bottom: 5px;
+        }
+        
+        .how-to-submit code {
+            background: rgba(0, 0, 0, 0.3);
+            padding: 2px 6px;
+            border-radius: 3px;
+            color: #00ff88;
+        }
     </style>
 </head>
 <body>
@@ -617,6 +874,7 @@
         <div class="tab-nav">
             <button class="tab-btn active" data-tab="my-collection">📦 My Collection</button>
             <button class="tab-btn" data-tab="all-pets">📚 All Pets Database</button>
+            <button class="tab-btn" data-tab="leaderboard">🏆 Leaderboard</button>
         </div>
         
         <!-- Tab: My Collection -->
@@ -796,7 +1054,62 @@
             <div class="pet-grid" id="allPetGrid"></div>
             <div class="no-results" id="allNoResults">No pets match your filters</div>
         </div>
+        
+        <!-- Tab: Leaderboard -->
+        <div id="leaderboard" class="tab-content">
+            <div class="leaderboard-container">
+                <div class="leaderboard-header">
+                    <h2>🏆 TauriPets Leaderboard</h2>
+                    <p>Top pet collectors on TauriWoW</p>
+                </div>
+                
+                <!-- Personal Best Card -->
+                <div class="personal-best-card empty" id="personalBestCard">
+                    <h3>📊 Your Personal Best</h3>
+                    <div id="personalBestContent">
+                        <p style="color: #666; margin: 20px 0;">Load your collection to see your score!</p>
+                    </div>
+                </div>
+                
+                <!-- Leaderboard Table -->
+                <div class="leaderboard-table-container">
+                    <h3>🌟 Top Collectors</h3>
+                    <table class="leaderboard-table" id="leaderboardTable">
+                        <thead>
+                            <tr>
+                                <th>Rank</th>
+                                <th>Player</th>
+                                <th>Score</th>
+                                <th>Pets</th>
+                                <th>Lv 25</th>
+                                <th>Date</th>
+                            </tr>
+                        </thead>
+                        <tbody id="leaderboardBody">
+                        </tbody>
+                    </table>
+                    <div class="leaderboard-empty" id="leaderboardEmpty">
+                        <p>🏆 No scores submitted yet!</p>
+                        <p>Be the first to claim the top spot.</p>
+                    </div>
+                </div>
+                
+                <!-- How to Submit -->
+                <div class="how-to-submit">
+                    <h4>📝 How to Submit Your Score</h4>
+                    <ol>
+                        <li>Load your collection in the <strong>My Collection</strong> tab</li>
+                        <li>Click <strong>"Copy Score for Discord"</strong> above</li>
+                        <li>Paste in the <code>#tauripets-scores</code> channel on Discord</li>
+                        <li>Scores are verified and added to the leaderboard weekly!</li>
+                    </ol>
+                </div>
+            </div>
+        </div>
     </div>
+    
+    <!-- Copy Feedback Toast -->
+    <div class="copy-feedback" id="copyFeedback">✓ Copied to clipboard!</div>
     
     <script>
         // =====================================================
@@ -934,10 +1247,20 @@
         ];
 
         // =====================================================
+        // LEADERBOARD DATA (Static - update manually from Discord submissions)
+        // =====================================================
+        const LEADERBOARD_DATA = [
+            // Example entries - replace with real submissions
+            // { player: "Kralomax", realm: "Tauri", score: 2847, pets: 156, level25: 42, date: "2024-12-10" },
+            // { player: "PetMaster", realm: "Tauri", score: 2654, pets: 142, level25: 38, date: "2024-12-09" },
+        ];
+
+        // =====================================================
         // GLOBAL STATE
         // =====================================================
         let playerData = null;
         let ownedSpeciesIDs = new Set();
+        let currentScoreData = null;
         
         const families = {
             1: { name: 'Humanoid', icon: '👤' },
@@ -986,6 +1309,184 @@
             { id: 'rare25', name: '💎 Quality Hunter', desc: '25+ rare or better', check: (s) => s.rareCount >= 25, bonus: 150 },
             { id: 'epic10', name: '💜 Epic Collector', desc: '10+ epic or better', check: (s) => s.epicCount >= 10, bonus: 200 },
         ];
+
+        // =====================================================
+        // LEADERBOARD FUNCTIONS
+        // =====================================================
+        
+        // Load personal best from localStorage
+        function loadPersonalBest() {
+            try {
+                const saved = localStorage.getItem('tauripets_personal_best');
+                return saved ? JSON.parse(saved) : null;
+            } catch (e) {
+                console.error('Error loading personal best:', e);
+                return null;
+            }
+        }
+        
+        // Save personal best to localStorage (only if better)
+        function savePersonalBest(scoreData, playerName, realmName) {
+            try {
+                const current = loadPersonalBest();
+                const newEntry = {
+                    player: playerName,
+                    realm: realmName,
+                    score: scoreData.total,
+                    pets: scoreData.stats.uniqueCount,
+                    level25: scoreData.stats.level25Count,
+                    rare: scoreData.stats.rareCount,
+                    epic: scoreData.stats.epicCount,
+                    date: new Date().toISOString().split('T')[0],
+                    timestamp: Date.now()
+                };
+                
+                // Only save if it's a new personal best
+                if (!current || newEntry.score > current.score) {
+                    localStorage.setItem('tauripets_personal_best', JSON.stringify(newEntry));
+                    return { saved: true, isNewBest: true, entry: newEntry };
+                }
+                
+                return { saved: false, isNewBest: false, entry: current };
+            } catch (e) {
+                console.error('Error saving personal best:', e);
+                return { saved: false, isNewBest: false, entry: null };
+            }
+        }
+        
+        // Render personal best card
+        function renderPersonalBest() {
+            const card = document.getElementById('personalBestCard');
+            const content = document.getElementById('personalBestContent');
+            const pb = loadPersonalBest();
+            
+            if (!pb) {
+                card.classList.add('empty');
+                content.innerHTML = `
+                    <p style="color: #666; margin: 20px 0;">Load your collection to see your score!</p>
+                `;
+                return;
+            }
+            
+            card.classList.remove('empty');
+            content.innerHTML = `
+                <div class="pb-score">${pb.score.toLocaleString()}</div>
+                <div class="pb-details">
+                    <div class="pb-detail">
+                        <div class="value">${pb.pets}</div>
+                        <div class="label">Unique Pets</div>
+                    </div>
+                    <div class="pb-detail">
+                        <div class="value">${pb.level25}</div>
+                        <div class="label">Level 25</div>
+                    </div>
+                    <div class="pb-detail">
+                        <div class="value">${pb.rare || 0}</div>
+                        <div class="label">Rare+</div>
+                    </div>
+                </div>
+                <div class="pb-meta">
+                    ${pb.player}-${pb.realm} • Best: ${pb.date}
+                </div>
+                <div class="submit-section">
+                    <button class="submit-btn discord" onclick="copyScoreForDiscord()" ${!currentScoreData ? 'disabled' : ''}>
+                        📋 Copy Score for Discord
+                    </button>
+                </div>
+            `;
+        }
+        
+        // Copy score to clipboard for Discord submission
+        function copyScoreForDiscord() {
+            const pb = loadPersonalBest();
+            if (!pb) {
+                alert('Load your collection first!');
+                return;
+            }
+            
+            // Use current session data if available, otherwise use personal best
+            const data = currentScoreData ? {
+                player: playerData.playerName,
+                realm: playerData.realmName,
+                score: currentScoreData.total,
+                pets: currentScoreData.stats.uniqueCount,
+                level25: currentScoreData.stats.level25Count,
+                rare: currentScoreData.stats.rareCount,
+                epic: currentScoreData.stats.epicCount
+            } : pb;
+            
+            const discordText = `🐉 **TauriPets Score Submission**
+━━━━━━━━━━━━━━━━━━━━
+👤 **Player:** ${data.player}-${data.realm}
+🏆 **Score:** ${data.score.toLocaleString()}
+📦 **Pets:** ${data.pets} unique
+⭐ **Level 25:** ${data.level25}
+💎 **Rare+:** ${data.rare || 0}
+📅 **Date:** ${new Date().toISOString().split('T')[0]}
+━━━━━━━━━━━━━━━━━━━━
+Submitted via https://kralomax.github.io/tauripets`;
+            
+            navigator.clipboard.writeText(discordText).then(() => {
+                showCopyFeedback();
+            }).catch(err => {
+                console.error('Copy failed:', err);
+                // Fallback for older browsers
+                const textarea = document.createElement('textarea');
+                textarea.value = discordText;
+                document.body.appendChild(textarea);
+                textarea.select();
+                document.execCommand('copy');
+                document.body.removeChild(textarea);
+                showCopyFeedback();
+            });
+        }
+        
+        // Show copy feedback toast
+        function showCopyFeedback() {
+            const feedback = document.getElementById('copyFeedback');
+            feedback.classList.add('show');
+            setTimeout(() => {
+                feedback.classList.remove('show');
+            }, 2500);
+        }
+        
+        // Render leaderboard table
+        function renderLeaderboard() {
+            const tbody = document.getElementById('leaderboardBody');
+            const empty = document.getElementById('leaderboardEmpty');
+            
+            if (LEADERBOARD_DATA.length === 0) {
+                tbody.innerHTML = '';
+                empty.style.display = 'block';
+                return;
+            }
+            
+            empty.style.display = 'none';
+            
+            // Sort by score descending
+            const sorted = [...LEADERBOARD_DATA].sort((a, b) => b.score - a.score);
+            
+            tbody.innerHTML = sorted.map((entry, index) => {
+                const rank = index + 1;
+                let trophy = '';
+                let rankClass = '';
+                
+                if (rank === 1) { trophy = '🥇'; rankClass = 'rank-1'; }
+                else if (rank === 2) { trophy = '🥈'; rankClass = 'rank-2'; }
+                else if (rank === 3) { trophy = '🥉'; rankClass = 'rank-3'; }
+                
+                return `
+                    <tr>
+                        <td class="rank ${rankClass}"><span class="trophy">${trophy}</span>${rank}</td>
+                        <td class="player-name">${entry.player}-${entry.realm}</td>
+                        <td class="score">${entry.score.toLocaleString()}</td>
+                        <td>${entry.pets}</td>
+                        <td>${entry.level25}</td>
+                        <td class="date">${entry.date}</td>
+                    </tr>
+                `;
+            }).join('');
+        }
         
         // Calculate pet score
         function calculateScore(pets) {
@@ -1064,6 +1565,9 @@
         function displayScore(scoreData) {
             if (!scoreData) return;
             
+            // Store current score data for Discord copy
+            currentScoreData = scoreData;
+            
             document.getElementById('scoreDisplay').classList.add('visible');
             document.getElementById('scoreValue').textContent = scoreData.total.toLocaleString();
             document.getElementById('scoreQuality').textContent = scoreData.qualityScore.toLocaleString();
@@ -1077,6 +1581,14 @@
                 list.innerHTML = scoreData.unlockedAchievements.map(ach => 
                     `<div class="achievement" title="${ach.desc}: +${ach.bonus}">${ach.name}</div>`
                 ).join('');
+            }
+            
+            // Auto-save personal best and update leaderboard display
+            const result = savePersonalBest(scoreData, playerData.playerName, playerData.realmName);
+            renderPersonalBest();
+            
+            if (result.isNewBest) {
+                console.log('New personal best saved!', result.entry);
             }
         }
 
@@ -1588,6 +2100,8 @@
             populateZoneFilter();
             setupAllFilters();
             renderAllPets();
+            renderPersonalBest();
+            renderLeaderboard();
         });
     </script>
 </body>
