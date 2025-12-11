@@ -473,6 +473,52 @@
             cursor: pointer;
             font-size: 0.9rem;
         }
+        
+        /* Upload toggle buttons */
+        .upload-toggle {
+            padding: 8px 20px;
+            border: 2px solid #00ff88;
+            background: transparent;
+            color: #00ff88;
+            border-radius: 20px;
+            cursor: pointer;
+            font-size: 0.9rem;
+            margin: 0 5px;
+            transition: all 0.2s;
+        }
+        
+        .upload-toggle:hover {
+            background: rgba(0, 255, 136, 0.1);
+        }
+        
+        .upload-toggle.active {
+            background: #00ff88;
+            color: #1a1a2e;
+        }
+        
+        /* Paste text area */
+        #pasteInput {
+            width: 100%;
+            height: 150px;
+            padding: 12px;
+            border: 2px solid rgba(255, 255, 255, 0.2);
+            border-radius: 10px;
+            background: rgba(0, 0, 0, 0.4);
+            color: #fff;
+            font-family: monospace;
+            font-size: 0.85rem;
+            resize: vertical;
+            margin-bottom: 15px;
+        }
+        
+        #pasteInput:focus {
+            outline: none;
+            border-color: #00ff88;
+        }
+        
+        #pasteInput::placeholder {
+            color: #666;
+        }
     </style>
 </head>
 <body>
@@ -492,10 +538,31 @@
         <div id="my-collection" class="tab-content active">
             <div class="upload-area" id="uploadArea">
                 <h2>📁 Load Your Collection</h2>
-                <p>Drag & drop your <strong>TauriPetsExporter.lua</strong> or <strong>TauriPetsGUI.lua</strong> file here</p>
-                <p class="file-path">📂 WTF/Account/YOURNAME/SavedVariables/</p>
-                <input type="file" id="fileInput" accept=".lua,.bak">
-                <button class="upload-btn" onclick="document.getElementById('fileInput').click()">Choose File</button>
+                
+                <!-- Toggle buttons -->
+                <div style="margin-bottom: 15px;">
+                    <button class="upload-toggle active" id="toggleFile" onclick="showFileUpload()">Upload File</button>
+                    <button class="upload-toggle" id="togglePaste" onclick="showPasteArea()">Paste Data</button>
+                </div>
+                
+                <!-- File upload section -->
+                <div id="fileSection">
+                    <p>Drag & drop your <strong>.lua</strong> file here</p>
+                    <p class="file-path">📂 WTF/Account/YOURNAME/SavedVariables/</p>
+                    <input type="file" id="fileInput" accept=".lua,.bak">
+                    <button class="upload-btn" onclick="document.getElementById('fileInput').click()">Choose File</button>
+                </div>
+                
+                <!-- Paste section (hidden by default) -->
+                <div id="pasteSection" style="display: none;">
+                    <p>In-game: Open TauriPets → Click <strong>Copy</strong> → Paste here:</p>
+                    <textarea id="pasteInput" placeholder="Paste your TauriPets data here...
+                    
+In-game type: /tpets copy
+Then Ctrl+A, Ctrl+C to copy
+Then paste here!"></textarea>
+                    <button class="upload-btn" onclick="processPastedData()">Load Collection</button>
+                </div>
             </div>
             
             <div class="player-info" id="playerInfo">
@@ -809,6 +876,106 @@
                 document.getElementById(btn.dataset.tab).classList.add('active');
             });
         });
+
+        // =====================================================
+        // FILE/PASTE TOGGLE
+        // =====================================================
+        function showFileUpload() {
+            document.getElementById('fileSection').style.display = 'block';
+            document.getElementById('pasteSection').style.display = 'none';
+            document.getElementById('toggleFile').classList.add('active');
+            document.getElementById('togglePaste').classList.remove('active');
+        }
+        
+        function showPasteArea() {
+            document.getElementById('fileSection').style.display = 'none';
+            document.getElementById('pasteSection').style.display = 'block';
+            document.getElementById('toggleFile').classList.remove('active');
+            document.getElementById('togglePaste').classList.add('active');
+        }
+        
+        function processPastedData() {
+            const text = document.getElementById('pasteInput').value.trim();
+            if (!text) {
+                alert('Please paste your TauriPets data first!');
+                return;
+            }
+            
+            try {
+                // Check if it's the simple copy format
+                if (text.startsWith('TAURIPETS:')) {
+                    playerData = parseCopyFormat(text);
+                } else if (text.includes('TauriPetsDB') || text.includes('TauriPetsGUI_Export')) {
+                    // It's the Lua format
+                    playerData = parseLuaFile(text);
+                } else {
+                    throw new Error('Unrecognized format. Make sure you copied from TauriPets addon.');
+                }
+                
+                // Build set of owned species IDs
+                ownedSpeciesIDs.clear();
+                if (playerData.pets) {
+                    playerData.pets.forEach(pet => {
+                        if (pet.speciesID) ownedSpeciesIDs.add(pet.speciesID);
+                    });
+                }
+                
+                displayMyCollection();
+                renderAllPets();
+                
+                // Clear the paste area
+                document.getElementById('pasteInput').value = '';
+                
+            } catch (err) {
+                alert('Error parsing data: ' + err.message);
+                console.error(err);
+            }
+        }
+        
+        function parseCopyFormat(text) {
+            const lines = text.trim().split('\n');
+            if (lines.length < 1) throw new Error('Empty data');
+            
+            // Parse header: TAURIPETS:PlayerName:Realm:Date:Owned:Total
+            const header = lines[0].split(':');
+            if (header[0] !== 'TAURIPETS') throw new Error('Invalid format');
+            
+            const data = {
+                playerName: header[1] || 'Unknown',
+                realmName: header[2] || 'TauriWoW',
+                exportDate: header[3] || '',
+                ownedPets: parseInt(header[4]) || 0,
+                totalPets: parseInt(header[5]) || 0,
+                pets: []
+            };
+            
+            // Parse pet lines: speciesID|name|familyID|level|qualityID|health|power|speed|favorite
+            for (let i = 1; i < lines.length; i++) {
+                const line = lines[i].trim();
+                if (!line) continue;
+                
+                const parts = line.split('|');
+                if (parts.length >= 8) {
+                    data.pets.push({
+                        speciesID: parseInt(parts[0]) || 0,
+                        speciesName: parts[1] || 'Unknown',
+                        petType: parseInt(parts[2]) || 0,
+                        level: parseInt(parts[3]) || 1,
+                        quality: parseInt(parts[4]) || 0,
+                        health: parseInt(parts[5]) || 0,
+                        power: parseInt(parts[6]) || 0,
+                        speed: parseInt(parts[7]) || 0,
+                        favorite: parts[8] === '1'
+                    });
+                }
+            }
+            
+            if (data.pets.length === 0) {
+                throw new Error('No pets found in data');
+            }
+            
+            return data;
+        }
 
         // =====================================================
         // FILE UPLOAD HANDLING
