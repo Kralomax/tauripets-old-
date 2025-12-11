@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>TauriPets Collection Viewer</title>
+    <title>TauriPets - Battle Pet Collection Tracker</title>
     <style>
         * {
             margin: 0;
@@ -20,20 +20,20 @@
         }
         
         .container {
-            max-width: 1200px;
+            max-width: 1400px;
             margin: 0 auto;
         }
         
         header {
             text-align: center;
-            margin-bottom: 30px;
+            margin-bottom: 20px;
         }
         
         h1 {
             color: #00ff88;
             font-size: 2.5rem;
             text-shadow: 0 0 20px rgba(0, 255, 136, 0.5);
-            margin-bottom: 10px;
+            margin-bottom: 5px;
         }
         
         .subtitle {
@@ -41,13 +41,51 @@
             font-size: 1rem;
         }
         
+        /* Tab Navigation */
+        .tab-nav {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            margin-bottom: 25px;
+            flex-wrap: wrap;
+        }
+        
+        .tab-btn {
+            padding: 12px 30px;
+            border: 2px solid #00ff88;
+            border-radius: 25px;
+            background: transparent;
+            color: #00ff88;
+            font-size: 1rem;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .tab-btn:hover {
+            background: rgba(0, 255, 136, 0.1);
+        }
+        
+        .tab-btn.active {
+            background: #00ff88;
+            color: #1a1a2e;
+        }
+        
+        .tab-content {
+            display: none;
+        }
+        
+        .tab-content.active {
+            display: block;
+        }
+        
         /* Upload Area */
         .upload-area {
             border: 3px dashed #00ff88;
             border-radius: 15px;
-            padding: 40px;
+            padding: 30px;
             text-align: center;
-            margin-bottom: 30px;
+            margin-bottom: 25px;
             background: rgba(0, 255, 136, 0.05);
             transition: all 0.3s ease;
             cursor: pointer;
@@ -60,12 +98,14 @@
         
         .upload-area h2 {
             color: #00ff88;
-            margin-bottom: 15px;
+            margin-bottom: 10px;
+            font-size: 1.3rem;
         }
         
         .upload-area p {
             color: #aaa;
-            margin-bottom: 15px;
+            margin-bottom: 10px;
+            font-size: 0.9rem;
         }
         
         .upload-area input[type="file"] {
@@ -76,9 +116,9 @@
             background: linear-gradient(135deg, #00ff88, #00cc6a);
             color: #1a1a2e;
             border: none;
-            padding: 12px 30px;
-            border-radius: 25px;
-            font-size: 1rem;
+            padding: 10px 25px;
+            border-radius: 20px;
+            font-size: 0.95rem;
             font-weight: bold;
             cursor: pointer;
             transition: transform 0.2s, box-shadow 0.2s;
@@ -90,12 +130,12 @@
         }
         
         .file-path {
-            margin-top: 20px;
-            padding: 15px;
+            margin-top: 15px;
+            padding: 10px;
             background: rgba(0, 0, 0, 0.3);
             border-radius: 8px;
             font-family: monospace;
-            font-size: 0.85rem;
+            font-size: 0.8rem;
             color: #ffd700;
             word-break: break-all;
         }
@@ -103,45 +143,53 @@
         /* Stats Dashboard */
         .stats-dashboard {
             display: none;
-            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
-            gap: 15px;
-            margin-bottom: 30px;
+            grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+            gap: 12px;
+            margin-bottom: 25px;
+        }
+        
+        .stats-dashboard.visible {
+            display: grid;
         }
         
         .stat-card {
             background: rgba(255, 255, 255, 0.05);
-            border-radius: 12px;
-            padding: 20px;
+            border-radius: 10px;
+            padding: 15px;
             text-align: center;
             border: 1px solid rgba(255, 255, 255, 0.1);
         }
         
         .stat-card .value {
-            font-size: 2rem;
+            font-size: 1.8rem;
             font-weight: bold;
             color: #00ff88;
         }
         
         .stat-card .label {
             color: #888;
-            font-size: 0.9rem;
-            margin-top: 5px;
+            font-size: 0.8rem;
+            margin-top: 3px;
         }
         
-        .stat-card.rare .value { color: #1eff00; }   /* Rare - Green */
-        .stat-card.epic .value { color: #0070dd; }   /* Epic - Blue */
-        .stat-card.legendary .value { color: #a335ee; } /* Legendary - Purple */
+        .stat-card.rare .value { color: #1eff00; }
+        .stat-card.epic .value { color: #0070dd; }
+        .stat-card.legendary .value { color: #a335ee; }
         
         /* Progress Bar */
         .progress-container {
             display: none;
-            margin-bottom: 30px;
+            margin-bottom: 25px;
+        }
+        
+        .progress-container.visible {
+            display: block;
         }
         
         .progress-bar {
-            height: 30px;
+            height: 25px;
             background: rgba(0, 0, 0, 0.3);
-            border-radius: 15px;
+            border-radius: 12px;
             overflow: hidden;
             position: relative;
         }
@@ -149,7 +197,7 @@
         .progress-fill {
             height: 100%;
             background: linear-gradient(90deg, #00ff88, #00cc6a);
-            border-radius: 15px;
+            border-radius: 12px;
             transition: width 0.5s ease;
         }
         
@@ -159,38 +207,64 @@
             left: 50%;
             transform: translate(-50%, -50%);
             font-weight: bold;
+            font-size: 0.9rem;
             text-shadow: 0 0 5px rgba(0, 0, 0, 0.8);
+        }
+        
+        /* Player info */
+        .player-info {
+            display: none;
+            text-align: center;
+            margin-bottom: 15px;
+            padding: 12px;
+            background: rgba(0, 0, 0, 0.2);
+            border-radius: 10px;
+        }
+        
+        .player-info.visible {
+            display: block;
+        }
+        
+        .player-info h2 {
+            color: #00ff88;
+            margin-bottom: 3px;
+            font-size: 1.2rem;
+        }
+        
+        .player-info .export-date {
+            color: #666;
+            font-size: 0.8rem;
         }
         
         /* Filters */
         .filters {
-            display: none;
+            display: flex;
             flex-wrap: wrap;
-            gap: 15px;
-            margin-bottom: 25px;
-            padding: 20px;
+            gap: 12px;
+            margin-bottom: 20px;
+            padding: 15px;
             background: rgba(0, 0, 0, 0.2);
-            border-radius: 12px;
+            border-radius: 10px;
         }
         
         .filter-group {
             display: flex;
             flex-direction: column;
-            gap: 5px;
+            gap: 4px;
         }
         
         .filter-group label {
-            font-size: 0.85rem;
+            font-size: 0.8rem;
             color: #888;
         }
         
         .filter-group input, .filter-group select {
-            padding: 10px 15px;
+            padding: 8px 12px;
             border: 1px solid rgba(255, 255, 255, 0.2);
-            border-radius: 8px;
+            border-radius: 6px;
             background: rgba(0, 0, 0, 0.3);
             color: #fff;
-            font-size: 0.95rem;
+            font-size: 0.9rem;
         }
         
         .filter-group input:focus, .filter-group select:focus {
@@ -198,48 +272,57 @@
             border-color: #00ff88;
         }
         
-        #searchInput {
-            min-width: 200px;
+        .filter-group input[type="text"] {
+            min-width: 150px;
         }
         
         /* Pet Grid */
         .pet-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-            gap: 15px;
+            grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+            gap: 12px;
         }
         
         .pet-card {
             background: rgba(255, 255, 255, 0.05);
-            border-radius: 12px;
-            padding: 15px;
+            border-radius: 10px;
+            padding: 12px;
             display: flex;
-            gap: 15px;
+            gap: 12px;
             border: 1px solid rgba(255, 255, 255, 0.1);
             transition: transform 0.2s, box-shadow 0.2s;
         }
         
         .pet-card:hover {
-            transform: translateY(-3px);
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.3);
         }
         
-        .pet-card.quality-0 { border-left: 4px solid #9d9d9d; } /* Poor - Gray */
-        .pet-card.quality-1 { border-left: 4px solid #9d9d9d; } /* Common - Gray */
-        .pet-card.quality-2 { border-left: 4px solid #ffffff; } /* Uncommon - White */
-        .pet-card.quality-3 { border-left: 4px solid #1eff00; } /* Rare - Green */
-        .pet-card.quality-4 { border-left: 4px solid #0070dd; } /* Epic - Blue */
-        .pet-card.quality-5 { border-left: 4px solid #a335ee; } /* Legendary - Purple */
+        .pet-card.owned {
+            border-left: 4px solid #00ff88;
+        }
+        
+        .pet-card.missing {
+            opacity: 0.6;
+            border-left: 4px solid #666;
+        }
+        
+        .pet-card.quality-0 { border-left-color: #9d9d9d; }
+        .pet-card.quality-1 { border-left-color: #9d9d9d; }
+        .pet-card.quality-2 { border-left-color: #ffffff; }
+        .pet-card.quality-3 { border-left-color: #1eff00; }
+        .pet-card.quality-4 { border-left-color: #0070dd; }
+        .pet-card.quality-5 { border-left-color: #a335ee; }
         
         .pet-icon {
-            width: 50px;
-            height: 50px;
+            width: 45px;
+            height: 45px;
             background: rgba(0, 0, 0, 0.3);
             border-radius: 8px;
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 1.8rem;
+            font-size: 1.6rem;
             flex-shrink: 0;
         }
         
@@ -250,36 +333,47 @@
         
         .pet-name {
             font-weight: bold;
-            font-size: 1.1rem;
-            margin-bottom: 5px;
+            font-size: 1rem;
+            margin-bottom: 3px;
             display: flex;
             align-items: center;
-            gap: 8px;
+            gap: 6px;
         }
         
         .pet-name .favorite { color: #ffd700; }
+        .pet-name .owned-check { color: #00ff88; font-size: 0.9rem; }
         
-        .pet-name.quality-0 { color: #9d9d9d; } /* Poor - Gray */
-        .pet-name.quality-1 { color: #9d9d9d; } /* Common - Gray */
-        .pet-name.quality-2 { color: #ffffff; } /* Uncommon - White */
-        .pet-name.quality-3 { color: #1eff00; } /* Rare - Green */
-        .pet-name.quality-4 { color: #0070dd; } /* Epic - Blue */
-        .pet-name.quality-5 { color: #a335ee; } /* Legendary - Purple */
+        .pet-name.quality-0 { color: #9d9d9d; }
+        .pet-name.quality-1 { color: #9d9d9d; }
+        .pet-name.quality-2 { color: #ffffff; }
+        .pet-name.quality-3 { color: #1eff00; }
+        .pet-name.quality-4 { color: #0070dd; }
+        .pet-name.quality-5 { color: #a335ee; }
         
         .pet-details {
-            font-size: 0.85rem;
+            font-size: 0.8rem;
             color: #aaa;
+            margin-bottom: 4px;
+        }
+        
+        .pet-location {
+            font-size: 0.75rem;
+            color: #ffd700;
+            background: rgba(255, 215, 0, 0.1);
+            padding: 3px 8px;
+            border-radius: 4px;
+            display: inline-block;
         }
         
         .pet-stats {
             display: flex;
-            gap: 10px;
-            margin-top: 8px;
-            font-size: 0.8rem;
+            gap: 8px;
+            margin-top: 6px;
+            font-size: 0.75rem;
         }
         
         .pet-stats span {
-            padding: 3px 8px;
+            padding: 2px 6px;
             border-radius: 4px;
             background: rgba(0, 0, 0, 0.3);
         }
@@ -289,43 +383,18 @@
         .stat-speed { color: #00ccff; }
         
         .custom-name {
-            font-size: 0.8rem;
+            font-size: 0.75rem;
             color: #ffd700;
             font-style: italic;
         }
         
-        /* Family icons */
-        .family-icon {
-            font-size: 0.9rem;
-        }
-        
         /* Pet count display */
         .pet-count {
-            display: none;
             text-align: center;
-            padding: 15px;
+            padding: 12px;
             color: #888;
-            font-size: 0.95rem;
-        }
-        
-        /* Player info */
-        .player-info {
-            display: none;
-            text-align: center;
-            margin-bottom: 20px;
-            padding: 15px;
-            background: rgba(0, 0, 0, 0.2);
-            border-radius: 12px;
-        }
-        
-        .player-info h2 {
-            color: #00ff88;
-            margin-bottom: 5px;
-        }
-        
-        .player-info .export-date {
-            color: #666;
-            font-size: 0.85rem;
+            font-size: 0.9rem;
+            margin-bottom: 15px;
         }
         
         /* No results */
@@ -336,135 +405,375 @@
             display: none;
         }
         
-        /* Family filter buttons */
-        .family-filters {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 8px;
-            margin-top: 10px;
+        /* Source type badges */
+        .source-badge {
+            font-size: 0.7rem;
+            padding: 2px 6px;
+            border-radius: 3px;
+            margin-left: 5px;
         }
         
-        .family-btn {
-            padding: 6px 12px;
+        .source-wild { background: #2d5a27; color: #7fff7f; }
+        .source-vendor { background: #5a4a27; color: #ffd700; }
+        .source-drop { background: #5a2727; color: #ff7f7f; }
+        .source-quest { background: #27455a; color: #7fbfff; }
+        .source-achievement { background: #4a275a; color: #bf7fff; }
+        .source-profession { background: #5a5427; color: #ffef7f; }
+        .source-promo { background: #275a5a; color: #7fffff; }
+        
+        /* Zone filter pills */
+        .zone-pills {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 6px;
+            margin-bottom: 15px;
+        }
+        
+        .zone-pill {
+            padding: 5px 12px;
             border: 1px solid rgba(255, 255, 255, 0.2);
-            border-radius: 20px;
+            border-radius: 15px;
             background: rgba(0, 0, 0, 0.3);
             color: #aaa;
             cursor: pointer;
-            font-size: 0.85rem;
+            font-size: 0.8rem;
             transition: all 0.2s;
         }
         
-        .family-btn:hover, .family-btn.active {
+        .zone-pill:hover, .zone-pill.active {
             background: rgba(0, 255, 136, 0.2);
             border-color: #00ff88;
             color: #00ff88;
+        }
+        
+        /* Missing pets highlight */
+        .show-missing .pet-card.owned {
+            opacity: 0.4;
+        }
+        
+        .show-missing .pet-card.missing {
+            opacity: 1;
+            border-left-color: #ff6b6b;
+        }
+        
+        /* Checkbox filters */
+        .checkbox-group {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .checkbox-group input[type="checkbox"] {
+            width: 18px;
+            height: 18px;
+            cursor: pointer;
+        }
+        
+        .checkbox-group label {
+            cursor: pointer;
+            font-size: 0.9rem;
         }
     </style>
 </head>
 <body>
     <div class="container">
         <header>
-            <h1>🐉 TauriPets Viewer</h1>
+            <h1>🐉 TauriPets</h1>
             <p class="subtitle">Battle Pet Collection Tracker for TauriWoW</p>
         </header>
         
-        <div class="upload-area" id="uploadArea">
-            <h2>📁 Load Your Collection</h2>
-            <p>Drag & drop your <strong>TauriPetsGUI.lua</strong> file here</p>
-            <p class="file-path">📂 WTF/Account/YOURNAME/SavedVariables/TauriPetsGUI.lua</p>
-            <input type="file" id="fileInput" accept=".lua">
-            <button class="upload-btn" onclick="document.getElementById('fileInput').click()">Choose File</button>
+        <!-- Tab Navigation -->
+        <div class="tab-nav">
+            <button class="tab-btn active" data-tab="my-collection">📦 My Collection</button>
+            <button class="tab-btn" data-tab="all-pets">📚 All Pets Database</button>
         </div>
         
-        <div class="player-info" id="playerInfo">
-            <h2 id="playerName">Player Name</h2>
-            <div class="export-date" id="exportDate">Exported: --</div>
+        <!-- Tab: My Collection -->
+        <div id="my-collection" class="tab-content active">
+            <div class="upload-area" id="uploadArea">
+                <h2>📁 Load Your Collection</h2>
+                <p>Drag & drop your <strong>TauriPetsExporter.lua</strong> or <strong>TauriPetsGUI.lua</strong> file here</p>
+                <p class="file-path">📂 WTF/Account/YOURNAME/SavedVariables/</p>
+                <input type="file" id="fileInput" accept=".lua,.bak">
+                <button class="upload-btn" onclick="document.getElementById('fileInput').click()">Choose File</button>
+            </div>
+            
+            <div class="player-info" id="playerInfo">
+                <h2 id="playerName">Player Name</h2>
+                <div class="export-date" id="exportDate">Exported: --</div>
+            </div>
+            
+            <div class="progress-container" id="progressContainer">
+                <div class="progress-bar">
+                    <div class="progress-fill" id="progressFill"></div>
+                    <div class="progress-text" id="progressText">0%</div>
+                </div>
+            </div>
+            
+            <div class="stats-dashboard" id="statsDashboard">
+                <div class="stat-card">
+                    <div class="value" id="totalPets">0</div>
+                    <div class="label">Total Pets</div>
+                </div>
+                <div class="stat-card">
+                    <div class="value" id="level25Pets">0</div>
+                    <div class="label">Level 25</div>
+                </div>
+                <div class="stat-card rare">
+                    <div class="value" id="rarePets">0</div>
+                    <div class="label">Rare+</div>
+                </div>
+                <div class="stat-card epic">
+                    <div class="value" id="epicPets">0</div>
+                    <div class="label">Epic+</div>
+                </div>
+                <div class="stat-card">
+                    <div class="value" id="favoritePets">0</div>
+                    <div class="label">⭐ Favorites</div>
+                </div>
+            </div>
+            
+            <div class="filters" id="myFilters" style="display: none;">
+                <div class="filter-group">
+                    <label>Search</label>
+                    <input type="text" id="mySearchInput" placeholder="Pet name...">
+                </div>
+                <div class="filter-group">
+                    <label>Quality</label>
+                    <select id="myQualityFilter">
+                        <option value="">All</option>
+                        <option value="2">Uncommon+</option>
+                        <option value="3">Rare+</option>
+                        <option value="4">Epic+</option>
+                    </select>
+                </div>
+                <div class="filter-group">
+                    <label>Level</label>
+                    <select id="myLevelFilter">
+                        <option value="">All</option>
+                        <option value="25">Level 25</option>
+                        <option value="20">Level 20+</option>
+                        <option value="10">Level 10+</option>
+                    </select>
+                </div>
+                <div class="filter-group">
+                    <label>Family</label>
+                    <select id="myFamilyFilter">
+                        <option value="">All Families</option>
+                        <option value="1">Humanoid</option>
+                        <option value="2">Dragonkin</option>
+                        <option value="3">Flying</option>
+                        <option value="4">Undead</option>
+                        <option value="5">Critter</option>
+                        <option value="6">Magic</option>
+                        <option value="7">Elemental</option>
+                        <option value="8">Beast</option>
+                        <option value="9">Aquatic</option>
+                        <option value="10">Mechanical</option>
+                    </select>
+                </div>
+            </div>
+            
+            <div class="pet-count" id="myPetCount"></div>
+            <div class="pet-grid" id="myPetGrid"></div>
+            <div class="no-results" id="myNoResults">No pets match your filters</div>
         </div>
         
-        <div class="progress-container" id="progressContainer">
-            <div class="progress-bar">
-                <div class="progress-fill" id="progressFill"></div>
-                <div class="progress-text" id="progressText">0%</div>
+        <!-- Tab: All Pets Database -->
+        <div id="all-pets" class="tab-content">
+            <div class="filters">
+                <div class="filter-group">
+                    <label>Search</label>
+                    <input type="text" id="allSearchInput" placeholder="Pet name...">
+                </div>
+                <div class="filter-group">
+                    <label>Zone</label>
+                    <select id="allZoneFilter">
+                        <option value="">All Zones</option>
+                    </select>
+                </div>
+                <div class="filter-group">
+                    <label>Source</label>
+                    <select id="allSourceFilter">
+                        <option value="">All Sources</option>
+                        <option value="wild">Wild</option>
+                        <option value="vendor">Vendor</option>
+                        <option value="drop">Drop</option>
+                        <option value="quest">Quest</option>
+                        <option value="achievement">Achievement</option>
+                        <option value="profession">Profession</option>
+                        <option value="promo">Promotion</option>
+                    </select>
+                </div>
+                <div class="filter-group">
+                    <label>Family</label>
+                    <select id="allFamilyFilter">
+                        <option value="">All Families</option>
+                        <option value="1">Humanoid</option>
+                        <option value="2">Dragonkin</option>
+                        <option value="3">Flying</option>
+                        <option value="4">Undead</option>
+                        <option value="5">Critter</option>
+                        <option value="6">Magic</option>
+                        <option value="7">Elemental</option>
+                        <option value="8">Beast</option>
+                        <option value="9">Aquatic</option>
+                        <option value="10">Mechanical</option>
+                    </select>
+                </div>
+                <div class="filter-group checkbox-group">
+                    <input type="checkbox" id="showMissingOnly">
+                    <label for="showMissingOnly">Show Missing Only</label>
+                </div>
             </div>
+            
+            <div class="pet-count" id="allPetCount">Loading pet database...</div>
+            <div class="pet-grid" id="allPetGrid"></div>
+            <div class="no-results" id="allNoResults">No pets match your filters</div>
         </div>
-        
-        <div class="stats-dashboard" id="statsDashboard">
-            <div class="stat-card">
-                <div class="value" id="totalPets">0</div>
-                <div class="label">Total Pets</div>
-            </div>
-            <div class="stat-card">
-                <div class="value" id="level25Pets">0</div>
-                <div class="label">Level 25</div>
-            </div>
-            <div class="stat-card rare">
-                <div class="value" id="rarePets">0</div>
-                <div class="label">Rare+</div>
-            </div>
-            <div class="stat-card epic">
-                <div class="value" id="epicPets">0</div>
-                <div class="label">Epic+</div>
-            </div>
-            <div class="stat-card">
-                <div class="value" id="favoritePets">0</div>
-                <div class="label">⭐ Favorites</div>
-            </div>
-        </div>
-        
-        <div class="filters" id="filters">
-            <div class="filter-group">
-                <label>Search</label>
-                <input type="text" id="searchInput" placeholder="Pet name...">
-            </div>
-            <div class="filter-group">
-                <label>Quality</label>
-                <select id="qualityFilter">
-                    <option value="">All Qualities</option>
-                    <option value="2">Uncommon+</option>
-                    <option value="3">Rare+</option>
-                    <option value="4">Epic+</option>
-                </select>
-            </div>
-            <div class="filter-group">
-                <label>Level</label>
-                <select id="levelFilter">
-                    <option value="">All Levels</option>
-                    <option value="25">Level 25</option>
-                    <option value="20">Level 20+</option>
-                    <option value="10">Level 10+</option>
-                </select>
-            </div>
-            <div class="filter-group">
-                <label>Family</label>
-                <select id="familyFilter">
-                    <option value="">All Families</option>
-                    <option value="1">Humanoid</option>
-                    <option value="2">Dragonkin</option>
-                    <option value="3">Flying</option>
-                    <option value="4">Undead</option>
-                    <option value="5">Critter</option>
-                    <option value="6">Magic</option>
-                    <option value="7">Elemental</option>
-                    <option value="8">Beast</option>
-                    <option value="9">Aquatic</option>
-                    <option value="10">Mechanical</option>
-                </select>
-            </div>
-        </div>
-        
-        <div class="pet-count" id="petCount">Showing 0 pets</div>
-        
-        <div class="pet-grid" id="petGrid"></div>
-        
-        <div class="no-results" id="noResults">No pets match your filters</div>
     </div>
     
     <script>
-        // Pet data
-        let petData = null;
+        // =====================================================
+        // PET DATABASE - All Legion Battle Pets
+        // =====================================================
+        const ALL_PETS_DATABASE = [
+            // ============ BROKEN ISLES - AZSUNA ============
+            { speciesID: 1708, name: "Coastal Sandpiper", family: 3, zone: "Azsuna", source: "wild", coords: "Various coastal areas", minLevel: 25, maxLevel: 25 },
+            { speciesID: 1709, name: "Felspider", family: 8, zone: "Azsuna", source: "wild", coords: "Faronaar", minLevel: 25, maxLevel: 25 },
+            { speciesID: 1710, name: "Olivetail Hare", family: 5, zone: "Azsuna", source: "wild", coords: "Various", minLevel: 25, maxLevel: 25 },
+            { speciesID: 1711, name: "Risen Saber Kitten", family: 4, zone: "Azsuna", source: "wild", coords: "Ruins of Nar'thalas", minLevel: 25, maxLevel: 25 },
+            { speciesID: 1712, name: "Juvenile Scuttleback", family: 9, zone: "Azsuna", source: "wild", coords: "Oceanus Cove", minLevel: 25, maxLevel: 25 },
+            { speciesID: 1713, name: "Golden Eaglet", family: 3, zone: "Azsuna", source: "wild", coords: "Cliffs and peaks", minLevel: 25, maxLevel: 25 },
+            
+            // ============ BROKEN ISLES - VAL'SHARAH ============
+            { speciesID: 1714, name: "Auburn Ringtail", family: 5, zone: "Val'sharah", source: "wild", coords: "Throughout zone", minLevel: 25, maxLevel: 25 },
+            { speciesID: 1715, name: "Black-Footed Fox Kit", family: 8, zone: "Val'sharah", source: "wild", coords: "Dreamgrove area", minLevel: 25, maxLevel: 25 },
+            { speciesID: 1716, name: "Gleamhoof Fawn", family: 8, zone: "Val'sharah", source: "wild", coords: "Forest areas", minLevel: 25, maxLevel: 25 },
+            { speciesID: 1717, name: "Nightmare Treant", family: 7, zone: "Val'sharah", source: "wild", coords: "Nightmare areas", minLevel: 25, maxLevel: 25 },
+            { speciesID: 1718, name: "Spring Strider", family: 9, zone: "Val'sharah", source: "wild", coords: "Near water", minLevel: 25, maxLevel: 25 },
+            { speciesID: 1719, name: "Terror Larva", family: 8, zone: "Val'sharah", source: "wild", coords: "Nightmare areas", minLevel: 25, maxLevel: 25 },
+            { speciesID: 1720, name: "Vale Flitter", family: 3, zone: "Val'sharah", source: "wild", coords: "Throughout zone", minLevel: 25, maxLevel: 25 },
+            
+            // ============ BROKEN ISLES - HIGHMOUNTAIN ============
+            { speciesID: 1721, name: "Hog-Nosed Bat", family: 3, zone: "Highmountain", source: "wild", coords: "Cave areas", minLevel: 25, maxLevel: 25 },
+            { speciesID: 1722, name: "Inland Croaker", family: 9, zone: "Highmountain", source: "wild", coords: "Near rivers/lakes", minLevel: 25, maxLevel: 25 },
+            { speciesID: 1723, name: "Mudshell Conch", family: 9, zone: "Highmountain", source: "wild", coords: "Waterways", minLevel: 25, maxLevel: 25 },
+            { speciesID: 1724, name: "Long-Eared Owl", family: 3, zone: "Highmountain", source: "wild", coords: "Forest areas", minLevel: 25, maxLevel: 25 },
+            { speciesID: 1725, name: "Slithering Brownscale", family: 8, zone: "Highmountain", source: "wild", coords: "Various", minLevel: 25, maxLevel: 25 },
+            { speciesID: 1726, name: "Snowfeather Hatchling", family: 3, zone: "Highmountain", source: "wild", coords: "Snowy peaks", minLevel: 25, maxLevel: 25 },
+            
+            // ============ BROKEN ISLES - STORMHEIM ============
+            { speciesID: 1727, name: "Albatross Chick", family: 3, zone: "Stormheim", source: "wild", coords: "Coastal cliffs", minLevel: 25, maxLevel: 25 },
+            { speciesID: 1728, name: "Fledgling Kingfeather", family: 3, zone: "Stormheim", source: "wild", coords: "Various", minLevel: 25, maxLevel: 25 },
+            { speciesID: 1729, name: "Golden Retriever Pup", family: 8, zone: "Stormheim", source: "wild", coords: "Near Vrykul areas", minLevel: 25, maxLevel: 25 },
+            { speciesID: 1730, name: "Grizzleback Fawn", family: 8, zone: "Stormheim", source: "wild", coords: "Forest areas", minLevel: 25, maxLevel: 25 },
+            { speciesID: 1731, name: "Rose Taipan", family: 8, zone: "Stormheim", source: "wild", coords: "Rocky areas", minLevel: 25, maxLevel: 25 },
+            { speciesID: 1732, name: "Shimmering Aquafly", family: 9, zone: "Stormheim", source: "wild", coords: "Near water", minLevel: 25, maxLevel: 25 },
+            { speciesID: 1733, name: "Tiny Apparition", family: 4, zone: "Stormheim", source: "wild", coords: "Haunted areas", minLevel: 25, maxLevel: 25 },
+            
+            // ============ BROKEN ISLES - SURAMAR ============
+            { speciesID: 1734, name: "Crystalline Broodling", family: 6, zone: "Suramar", source: "wild", coords: "Crystal areas", minLevel: 25, maxLevel: 25 },
+            { speciesID: 1735, name: "Thornclaw Broodling", family: 8, zone: "Suramar", source: "wild", coords: "Falanaar", minLevel: 25, maxLevel: 25 },
+            { speciesID: 1736, name: "Eldritch Manafiend", family: 6, zone: "Suramar", source: "wild", coords: "Mana-rich areas", minLevel: 25, maxLevel: 25 },
+            { speciesID: 1737, name: "Arcane Gorger", family: 6, zone: "Suramar", source: "wild", coords: "Near leylines", minLevel: 25, maxLevel: 25 },
+            { speciesID: 1738, name: "Stormborne Whelpling", family: 2, zone: "Suramar", source: "wild", coords: "Storm areas", minLevel: 25, maxLevel: 25 },
+            
+            // ============ BROKEN SHORE ============
+            { speciesID: 1800, name: "Bile Larva", family: 8, zone: "Broken Shore", source: "wild", coords: "Various", minLevel: 25, maxLevel: 25 },
+            { speciesID: 1801, name: "Vicious Broodling", family: 8, zone: "Broken Shore", source: "wild", coords: "Spider areas", minLevel: 25, maxLevel: 25 },
+            { speciesID: 1802, name: "Grasping Manifestation", family: 6, zone: "Broken Shore", source: "wild", coords: "Fel areas", minLevel: 25, maxLevel: 25 },
+            
+            // ============ ARGUS - KROKUUN ============
+            { speciesID: 1850, name: "Bile Larva", family: 8, zone: "Krokuun", source: "wild", coords: "Various", minLevel: 25, maxLevel: 25 },
+            { speciesID: 1851, name: "Skittering Eel", family: 9, zone: "Krokuun", source: "wild", coords: "Water areas", minLevel: 25, maxLevel: 25 },
+            { speciesID: 1852, name: "Flickering Argunite", family: 7, zone: "Krokuun", source: "wild", coords: "Crystal formations", minLevel: 25, maxLevel: 25 },
+            
+            // ============ ARGUS - MAC'AREE ============
+            { speciesID: 1860, name: "Docile Skyfin", family: 3, zone: "Mac'Aree", source: "wild", coords: "Various", minLevel: 25, maxLevel: 25 },
+            { speciesID: 1861, name: "Fel-Afflicted Skyfin", family: 3, zone: "Mac'Aree", source: "wild", coords: "Fel areas", minLevel: 25, maxLevel: 25 },
+            { speciesID: 1862, name: "Void-Scarred Anubisath", family: 1, zone: "Mac'Aree", source: "wild", coords: "Ruins", minLevel: 25, maxLevel: 25 },
+            
+            // ============ ARGUS - ANTORAN WASTES ============
+            { speciesID: 1870, name: "Antoran Bile Larva", family: 8, zone: "Antoran Wastes", source: "wild", coords: "Various", minLevel: 25, maxLevel: 25 },
+            { speciesID: 1871, name: "Warped Scavenger", family: 8, zone: "Antoran Wastes", source: "wild", coords: "Fel pools", minLevel: 25, maxLevel: 25 },
+            
+            // ============ VENDOR PETS ============
+            { speciesID: 1740, name: "Alliance Enthusiast", family: 1, zone: "Dalaran", source: "vendor", coords: "Breanni's Shop", minLevel: 1, maxLevel: 1 },
+            { speciesID: 1741, name: "Horde Fanatic", family: 1, zone: "Dalaran", source: "vendor", coords: "Breanni's Shop", minLevel: 1, maxLevel: 1 },
+            { speciesID: 1742, name: "Plump Turkey", family: 3, zone: "Dalaran", source: "vendor", coords: "Breanni's Shop", minLevel: 1, maxLevel: 1 },
+            { speciesID: 1743, name: "Alarm-o-Bot", family: 10, zone: "Dalaran", source: "vendor", coords: "Engineering Supplies", minLevel: 1, maxLevel: 1 },
+            { speciesID: 1885, name: "Ash'ana", family: 8, zone: "Val'sharah", source: "vendor", coords: "Dreamweavers - Revered", minLevel: 1, maxLevel: 1 },
+            { speciesID: 1886, name: "Corgnelius", family: 8, zone: "Dalaran", source: "vendor", coords: "Breanni's Shop", minLevel: 1, maxLevel: 1 },
+            { speciesID: 1887, name: "Firebat Pup", family: 3, zone: "Highmountain", source: "vendor", coords: "Highmountain Tribe - Revered", minLevel: 1, maxLevel: 1 },
+            { speciesID: 1888, name: "Baby Elderhorn", family: 8, zone: "Highmountain", source: "vendor", coords: "Highmountain Tribe - Exalted", minLevel: 1, maxLevel: 1 },
+            { speciesID: 1889, name: "Court Scribe", family: 1, zone: "Suramar", source: "vendor", coords: "The Nightfallen - Revered", minLevel: 1, maxLevel: 1 },
+            { speciesID: 1890, name: "Extinguished Eye", family: 6, zone: "Suramar", source: "vendor", coords: "The Nightfallen - Exalted", minLevel: 1, maxLevel: 1 },
+            
+            // ============ DROP PETS ============
+            { speciesID: 1750, name: "Nightmare Whelpling", family: 2, zone: "The Emerald Nightmare", source: "drop", coords: "Drops from bosses", minLevel: 1, maxLevel: 1 },
+            { speciesID: 1751, name: "Corrupted Blood of Argus", family: 6, zone: "Antorus", source: "drop", coords: "Argus the Unmaker", minLevel: 1, maxLevel: 1 },
+            { speciesID: 1752, name: "Stardust Bunny", family: 5, zone: "The Nighthold", source: "drop", coords: "Star Augur Etraeus", minLevel: 1, maxLevel: 1 },
+            { speciesID: 1753, name: "Twilight Clutch-Sister", family: 2, zone: "The Nighthold", source: "drop", coords: "Elisande", minLevel: 1, maxLevel: 1 },
+            { speciesID: 1754, name: "Scraps", family: 10, zone: "Return to Karazhan", source: "drop", coords: "Opera Hall", minLevel: 1, maxLevel: 1 },
+            { speciesID: 1755, name: "Fiendish Imp", family: 6, zone: "Return to Karazhan", source: "drop", coords: "Illhoof", minLevel: 1, maxLevel: 1 },
+            { speciesID: 1756, name: "Orphaned Felbat", family: 8, zone: "The Nighthold", source: "drop", coords: "Tichondrius", minLevel: 1, maxLevel: 1 },
+            
+            // ============ WORLD QUEST / RARE DROPS ============
+            { speciesID: 1760, name: "Bleakwater Jelly", family: 9, zone: "Azsuna", source: "drop", coords: "World Quest reward", minLevel: 1, maxLevel: 1 },
+            { speciesID: 1761, name: "Benax", family: 8, zone: "Suramar", source: "drop", coords: "Rare mob Baseleph", minLevel: 1, maxLevel: 1 },
+            { speciesID: 1762, name: "Eye of Inquisition", family: 6, zone: "Azsuna", source: "drop", coords: "Rare mob Inquisitor Tivos", minLevel: 1, maxLevel: 1 },
+            { speciesID: 1763, name: "Fledgling Oliveback", family: 3, zone: "Val'sharah", source: "drop", coords: "Rare mob", minLevel: 1, maxLevel: 1 },
+            { speciesID: 1764, name: "Pygmy Owl", family: 3, zone: "Highmountain", source: "drop", coords: "Rare mob", minLevel: 1, maxLevel: 1 },
+            { speciesID: 1765, name: "Sting Ray Pup", family: 9, zone: "Stormheim", source: "drop", coords: "Rare mob", minLevel: 1, maxLevel: 1 },
+            
+            // ============ ACHIEVEMENT PETS ============
+            { speciesID: 1770, name: "Trunks", family: 8, zone: "Achievement", source: "achievement", coords: "Glory of the Legion Hero", minLevel: 1, maxLevel: 1 },
+            { speciesID: 1771, name: "Nightmare Lasher", family: 7, zone: "Achievement", source: "achievement", coords: "Glory of the Legion Raider", minLevel: 1, maxLevel: 1 },
+            { speciesID: 1772, name: "Wonderous Wisdomball", family: 6, zone: "Achievement", source: "achievement", coords: "Field Medic", minLevel: 1, maxLevel: 1 },
+            
+            // ============ PROFESSION PETS ============
+            { speciesID: 1780, name: "Mechanical Axebeak", family: 10, zone: "Engineering", source: "profession", coords: "Legion Engineering craft", minLevel: 1, maxLevel: 1 },
+            { speciesID: 1781, name: "Trigger", family: 10, zone: "Engineering", source: "profession", coords: "Legion Engineering craft", minLevel: 1, maxLevel: 1 },
+            { speciesID: 1782, name: "Knockoff Blingtron", family: 10, zone: "Engineering", source: "profession", coords: "Legion Engineering craft", minLevel: 1, maxLevel: 1 },
+            
+            // ============ CLASS HALL PETS ============
+            { speciesID: 1790, name: "Broot", family: 7, zone: "Class Hall", source: "quest", coords: "Druid Order Hall Campaign", minLevel: 1, maxLevel: 1 },
+            { speciesID: 1791, name: "Snowfang", family: 8, zone: "Class Hall", source: "quest", coords: "Hunter Order Hall Campaign", minLevel: 1, maxLevel: 1 },
+            { speciesID: 1792, name: "Ban-Fu, Cub of Ban-Lu", family: 8, zone: "Class Hall", source: "quest", coords: "Monk Order Hall Campaign", minLevel: 1, maxLevel: 1 },
+            
+            // ============ OLDER EXPANSION PETS (Common on TauriWoW) ============
+            // Kalimdor Wild
+            { speciesID: 379, name: "Squirrel", family: 5, zone: "Kalimdor", source: "wild", coords: "Various forests", minLevel: 1, maxLevel: 25 },
+            { speciesID: 378, name: "Rabbit", family: 5, zone: "Eastern Kingdoms", source: "wild", coords: "Various", minLevel: 1, maxLevel: 25 },
+            { speciesID: 447, name: "Fawn", family: 5, zone: "Teldrassil", source: "wild", coords: "Throughout zone", minLevel: 1, maxLevel: 5 },
+            { speciesID: 452, name: "Red-Tailed Chipmunk", family: 5, zone: "Teldrassil", source: "wild", coords: "Throughout zone", minLevel: 1, maxLevel: 6 },
+            { speciesID: 478, name: "Forest Moth", family: 3, zone: "Teldrassil", source: "wild", coords: "Throughout zone", minLevel: 3, maxLevel: 6 },
+            { speciesID: 374, name: "Black Lamb", family: 5, zone: "Elwynn Forest", source: "wild", coords: "Near Goldshire", minLevel: 1, maxLevel: 8 },
+            { speciesID: 68, name: "Great Horned Owl", family: 3, zone: "Teldrassil", source: "vendor", coords: "Darnassus", minLevel: 1, maxLevel: 1 },
+            { speciesID: 72, name: "Snowshoe Rabbit", family: 5, zone: "Dun Morogh", source: "vendor", coords: "Ironforge", minLevel: 1, maxLevel: 1 },
+            { speciesID: 138, name: "Blue Moth", family: 3, zone: "The Exodar", source: "vendor", coords: "The Exodar", minLevel: 1, maxLevel: 1 },
+            
+            // Pandaria
+            { speciesID: 627, name: "Infected Squirrel", family: 4, zone: "Silverpine Forest", source: "wild", coords: "Various", minLevel: 3, maxLevel: 6 },
+            
+            // Draenor
+            { speciesID: 1446, name: "Frostwolf Pup", family: 8, zone: "Frostfire Ridge", source: "wild", coords: "Throughout zone", minLevel: 23, maxLevel: 25 },
+            { speciesID: 1447, name: "Icespine Hatchling", family: 8, zone: "Frostfire Ridge", source: "wild", coords: "Snowy areas", minLevel: 23, maxLevel: 25 },
+            
+            // ============ SPECIAL / RARE PETS ============
+            { speciesID: 1895, name: "Sun Darter Hatchling", family: 2, zone: "Winterspring", source: "drop", coords: "Hidden cave puzzle", minLevel: 1, maxLevel: 1 },
+            { speciesID: 1896, name: "Terky", family: 5, zone: "Borean Tundra", source: "drop", coords: "Hidden egg", minLevel: 1, maxLevel: 1 },
+            { speciesID: 489, name: "Spawn of Onyxia", family: 2, zone: "Dustwallow Marsh", source: "wild", coords: "Wyrmbog", minLevel: 14, maxLevel: 15 },
+            { speciesID: 496, name: "Rusty Snail", family: 5, zone: "Ashenvale", source: "wild", coords: "Zoram Strand", minLevel: 17, maxLevel: 18 },
+        ];
+
+        // =====================================================
+        // GLOBAL STATE
+        // =====================================================
+        let playerData = null;
+        let ownedSpeciesIDs = new Set();
         
-        // Family names and icons
         const families = {
             1: { name: 'Humanoid', icon: '👤' },
             2: { name: 'Dragonkin', icon: '🐉' },
@@ -478,17 +787,32 @@
             10: { name: 'Mechanical', icon: '⚙️' }
         };
         
-        // Quality names
         const qualities = {
-            0: 'Poor',
-            1: 'Common',
-            2: 'Uncommon',
-            3: 'Rare',
-            4: 'Epic',
-            5: 'Legendary'
+            0: 'Poor', 1: 'Common', 2: 'Uncommon', 
+            3: 'Rare', 4: 'Epic', 5: 'Legendary'
         };
         
-        // File handling
+        const sourceLabels = {
+            wild: 'Wild', vendor: 'Vendor', drop: 'Drop',
+            quest: 'Quest', achievement: 'Achievement', 
+            profession: 'Profession', promo: 'Promo'
+        };
+
+        // =====================================================
+        // TAB NAVIGATION
+        // =====================================================
+        document.querySelectorAll('.tab-btn').forEach(btn => {
+            btn.addEventListener('click', () => {
+                document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+                document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+                btn.classList.add('active');
+                document.getElementById(btn.dataset.tab).classList.add('active');
+            });
+        });
+
+        // =====================================================
+        // FILE UPLOAD HANDLING
+        // =====================================================
         const uploadArea = document.getElementById('uploadArea');
         const fileInput = document.getElementById('fileInput');
         
@@ -518,8 +842,18 @@
             reader.onload = (e) => {
                 try {
                     const content = e.target.result;
-                    petData = parseLuaFile(content);
-                    displayCollection();
+                    playerData = parseLuaFile(content);
+                    
+                    // Build set of owned species IDs
+                    ownedSpeciesIDs.clear();
+                    if (playerData.pets) {
+                        playerData.pets.forEach(pet => {
+                            if (pet.speciesID) ownedSpeciesIDs.add(pet.speciesID);
+                        });
+                    }
+                    
+                    displayMyCollection();
+                    renderAllPets(); // Re-render to show owned status
                 } catch (err) {
                     alert('Error parsing file: ' + err.message);
                     console.error(err);
@@ -529,7 +863,6 @@
         }
         
         function parseLuaFile(content) {
-            // Try to find TauriPetsGUI_Export first (new format), then TauriPetsDB (old format)
             let match = content.match(/TauriPetsGUI_Export\s*=\s*\{/);
             let varName = 'TauriPetsGUI_Export';
             
@@ -542,7 +875,6 @@
                 throw new Error('Could not find pet data. Make sure you exported from TauriPetsGUI or TauriPetsExporter.');
             }
             
-            // Parse the Lua table manually
             const data = {
                 playerName: '',
                 realmName: '',
@@ -552,7 +884,6 @@
                 pets: []
             };
             
-            // Extract player name
             const playerMatch = content.match(/\["player"\]\s*=\s*"([^"]+)"/);
             if (playerMatch) {
                 const parts = playerMatch[1].split('-');
@@ -560,40 +891,28 @@
                 data.realmName = parts.slice(1).join('-') || 'TauriWoW';
             }
             
-            // Extract export date
             const dateMatch = content.match(/\["exportDate"\]\s*=\s*"([^"]+)"/);
-            if (dateMatch) {
-                data.exportDate = dateMatch[1];
-            }
+            if (dateMatch) data.exportDate = dateMatch[1];
             
-            // Extract totalPets/maxPets
             const totalMatch = content.match(/\["totalPets"\]\s*=\s*(\d+)/);
             const maxMatch = content.match(/\["maxPets"\]\s*=\s*(\d+)/);
             if (totalMatch) data.ownedPets = parseInt(totalMatch[1]);
             if (maxMatch) data.totalPets = parseInt(maxMatch[1]);
             
-            // Extract pets array - find each pet block
             const petsSection = content.match(/\["pets"\]\s*=\s*\{([\s\S]*?)\},\s*\["player"\]/);
             if (!petsSection) {
-                // Try alternate format where pets comes after other fields
                 const altPetsSection = content.match(/\["pets"\]\s*=\s*\{([\s\S]+)\}\s*,?\s*\}/);
-                if (altPetsSection) {
-                    parsePetsFromSection(altPetsSection[1], data);
-                }
+                if (altPetsSection) parsePetsFromSection(altPetsSection[1], data);
             } else {
                 parsePetsFromSection(petsSection[1], data);
             }
             
-            // If ownedPets wasn't set, use pets array length
-            if (!data.ownedPets) {
-                data.ownedPets = data.pets.length;
-            }
+            if (!data.ownedPets) data.ownedPets = data.pets.length;
             
             return data;
         }
         
         function parsePetsFromSection(petsContent, data) {
-            // Split by pet entries (each starts with { and ends with }, -- [number])
             const petBlocks = petsContent.split(/\},\s*--\s*\[\d+\]/);
             
             for (const block of petBlocks) {
@@ -601,57 +920,49 @@
                 
                 const pet = {};
                 
-                // Extract string values
                 const stringFields = ['name', 'speciesName', 'customName', 'quality', 'family', 'petID', 'breed'];
                 for (const field of stringFields) {
                     const match = block.match(new RegExp(`\\["${field}"\\]\\s*=\\s*"([^"]*)"`));
                     if (match) pet[field] = match[1];
                 }
                 
-                // Extract number values
                 const numberFields = ['speciesID', 'familyID', 'level', 'qualityID', 'health', 'power', 'speed', 'petType'];
                 for (const field of numberFields) {
                     const match = block.match(new RegExp(`\\["${field}"\\]\\s*=\\s*(-?\\d+)`));
                     if (match) pet[field] = parseInt(match[1]);
                 }
                 
-                // Extract boolean values
                 const boolFields = ['favorite', 'canBattle', 'isTradeable', 'isUnique'];
                 for (const field of boolFields) {
                     const match = block.match(new RegExp(`\\["${field}"\\]\\s*=\\s*(true|false)`));
                     if (match) pet[field] = match[1] === 'true';
                 }
                 
-                // Normalize field names between old and new format
                 if (!pet.speciesName && pet.name) pet.speciesName = pet.name;
                 if (!pet.petType && pet.familyID) pet.petType = pet.familyID;
                 if (pet.qualityID !== undefined) pet.quality = pet.qualityID;
                 
-                // Only add if we have basic pet info
-                if (pet.speciesName || pet.name) {
-                    data.pets.push(pet);
-                }
+                if (pet.speciesName || pet.name) data.pets.push(pet);
             }
         }
-        
-        function displayCollection() {
-            if (!petData) return;
+
+        // =====================================================
+        // MY COLLECTION DISPLAY
+        // =====================================================
+        function displayMyCollection() {
+            if (!playerData) return;
             
-            // Show all sections
-            document.getElementById('playerInfo').style.display = 'block';
-            document.getElementById('progressContainer').style.display = 'block';
-            document.getElementById('statsDashboard').style.display = 'grid';
-            document.getElementById('filters').style.display = 'flex';
-            document.getElementById('petCount').style.display = 'block';
+            document.getElementById('playerInfo').classList.add('visible');
+            document.getElementById('progressContainer').classList.add('visible');
+            document.getElementById('statsDashboard').classList.add('visible');
+            document.getElementById('myFilters').style.display = 'flex';
             
-            // Player info
-            const playerName = petData.playerName || 'Unknown';
-            const realmName = petData.realmName || 'TauriWoW';
-            document.getElementById('playerName').textContent = `${playerName} - ${realmName}`;
-            document.getElementById('exportDate').textContent = `Exported: ${petData.exportDate || 'Unknown'}`;
+            document.getElementById('playerName').textContent = 
+                `${playerData.playerName} - ${playerData.realmName}`;
+            document.getElementById('exportDate').textContent = 
+                `Exported: ${playerData.exportDate || 'Unknown'}`;
             
-            // Calculate stats - handle both quality formats
-            const pets = petData.pets || [];
+            const pets = playerData.pets || [];
             const level25 = pets.filter(p => p.level === 25).length;
             const rare = pets.filter(p => {
                 const q = typeof p.quality === 'number' ? p.quality : (p.qualityID || 0);
@@ -663,39 +974,79 @@
             }).length;
             const favorites = pets.filter(p => p.favorite).length;
             
-            // Update stats
             document.getElementById('totalPets').textContent = pets.length;
             document.getElementById('level25Pets').textContent = level25;
             document.getElementById('rarePets').textContent = rare;
             document.getElementById('epicPets').textContent = epic;
             document.getElementById('favoritePets').textContent = favorites;
             
-            // Progress bar
-            const totalPossible = petData.totalPets || petData.maxPets || 1000;
-            const ownedCount = petData.ownedPets || pets.length;
+            const totalPossible = playerData.totalPets || playerData.maxPets || 1000;
+            const ownedCount = playerData.ownedPets || pets.length;
             const percentage = Math.min(100, (ownedCount / totalPossible * 100)).toFixed(1);
             document.getElementById('progressFill').style.width = percentage + '%';
-            document.getElementById('progressText').textContent = `${ownedCount} / ${totalPossible} (${percentage}%)`;
+            document.getElementById('progressText').textContent = 
+                `${ownedCount} / ${totalPossible} (${percentage}%)`;
             
-            // Render pets
-            renderPets();
-            
-            // Setup filters
-            setupFilters();
+            renderMyPets();
+            setupMyFilters();
         }
         
-        function renderPets() {
-            const grid = document.getElementById('petGrid');
-            const pets = getFilteredPets();
+        function getMyFilteredPets() {
+            if (!playerData || !playerData.pets) return [];
             
-            document.getElementById('petCount').textContent = `Showing ${pets.length} pets`;
-            document.getElementById('noResults').style.display = pets.length === 0 ? 'block' : 'none';
+            let pets = [...playerData.pets];
+            
+            const search = document.getElementById('mySearchInput').value.toLowerCase();
+            if (search) {
+                pets = pets.filter(p => 
+                    (p.speciesName && p.speciesName.toLowerCase().includes(search)) ||
+                    (p.customName && p.customName.toLowerCase().includes(search))
+                );
+            }
+            
+            const quality = document.getElementById('myQualityFilter').value;
+            if (quality) {
+                const minQuality = parseInt(quality);
+                pets = pets.filter(p => {
+                    const petQuality = typeof p.quality === 'number' ? p.quality : (p.qualityID || 0);
+                    return petQuality >= minQuality;
+                });
+            }
+            
+            const level = document.getElementById('myLevelFilter').value;
+            if (level) {
+                pets = pets.filter(p => p.level >= parseInt(level));
+            }
+            
+            const family = document.getElementById('myFamilyFilter').value;
+            if (family) {
+                const familyId = parseInt(family);
+                pets = pets.filter(p => (p.petType || p.familyID) === familyId);
+            }
+            
+            pets.sort((a, b) => {
+                if (a.favorite !== b.favorite) return b.favorite ? 1 : -1;
+                if (a.level !== b.level) return (b.level || 0) - (a.level || 0);
+                const aQuality = typeof a.quality === 'number' ? a.quality : (a.qualityID || 0);
+                const bQuality = typeof b.quality === 'number' ? b.quality : (b.qualityID || 0);
+                if (aQuality !== bQuality) return bQuality - aQuality;
+                return (a.speciesName || '').localeCompare(b.speciesName || '');
+            });
+            
+            return pets;
+        }
+        
+        function renderMyPets() {
+            const grid = document.getElementById('myPetGrid');
+            const pets = getMyFilteredPets();
+            
+            document.getElementById('myPetCount').textContent = `Showing ${pets.length} pets`;
+            document.getElementById('myNoResults').style.display = pets.length === 0 ? 'block' : 'none';
             
             grid.innerHTML = pets.map(pet => {
                 const familyId = pet.petType || pet.familyID || 0;
                 const family = families[familyId] || { name: pet.family || 'Unknown', icon: '❓' };
                 
-                // Handle quality - could be number or string
                 let qualityNum = 0;
                 let qualityName = 'Unknown';
                 if (typeof pet.quality === 'number') {
@@ -706,7 +1057,6 @@
                     qualityName = pet.quality || qualities[qualityNum] || 'Unknown';
                 } else if (typeof pet.quality === 'string') {
                     qualityName = pet.quality;
-                    // Try to reverse-lookup quality number
                     for (const [num, name] of Object.entries(qualities)) {
                         if (name === pet.quality) {
                             qualityNum = parseInt(num);
@@ -722,7 +1072,7 @@
                             <div class="pet-name quality-${qualityNum}">
                                 ${pet.favorite ? '<span class="favorite">⭐</span>' : ''}
                                 ${pet.speciesName || pet.name || 'Unknown Pet'}
-                                ${pet.breed && pet.breed !== 'Unknown' ? `<span style="color:#888;font-size:0.8rem">(${pet.breed})</span>` : ''}
+                                ${pet.breed && pet.breed !== 'Unknown' ? `<span style="color:#888;font-size:0.75rem">(${pet.breed})</span>` : ''}
                             </div>
                             ${pet.customName ? `<div class="custom-name">"${pet.customName}"</div>` : ''}
                             <div class="pet-details">
@@ -739,62 +1089,119 @@
             }).join('');
         }
         
-        function getFilteredPets() {
-            if (!petData || !petData.pets) return [];
+        function setupMyFilters() {
+            document.getElementById('mySearchInput').addEventListener('input', renderMyPets);
+            document.getElementById('myQualityFilter').addEventListener('change', renderMyPets);
+            document.getElementById('myLevelFilter').addEventListener('change', renderMyPets);
+            document.getElementById('myFamilyFilter').addEventListener('change', renderMyPets);
+        }
+
+        // =====================================================
+        // ALL PETS DATABASE DISPLAY
+        // =====================================================
+        function populateZoneFilter() {
+            const zones = [...new Set(ALL_PETS_DATABASE.map(p => p.zone))].sort();
+            const select = document.getElementById('allZoneFilter');
+            zones.forEach(zone => {
+                const option = document.createElement('option');
+                option.value = zone;
+                option.textContent = zone;
+                select.appendChild(option);
+            });
+        }
+        
+        function getAllFilteredPets() {
+            let pets = [...ALL_PETS_DATABASE];
             
-            let pets = [...petData.pets];
-            
-            // Search filter
-            const search = document.getElementById('searchInput').value.toLowerCase();
+            const search = document.getElementById('allSearchInput').value.toLowerCase();
             if (search) {
-                pets = pets.filter(p => 
-                    (p.speciesName && p.speciesName.toLowerCase().includes(search)) ||
-                    (p.customName && p.customName.toLowerCase().includes(search))
-                );
+                pets = pets.filter(p => p.name.toLowerCase().includes(search));
             }
             
-            // Quality filter - handle both number and string quality
-            const quality = document.getElementById('qualityFilter').value;
-            if (quality) {
-                const minQuality = parseInt(quality);
-                pets = pets.filter(p => {
-                    const petQuality = typeof p.quality === 'number' ? p.quality : (p.qualityID || 0);
-                    return petQuality >= minQuality;
-                });
+            const zone = document.getElementById('allZoneFilter').value;
+            if (zone) {
+                pets = pets.filter(p => p.zone === zone);
             }
             
-            // Level filter
-            const level = document.getElementById('levelFilter').value;
-            if (level) {
-                pets = pets.filter(p => p.level >= parseInt(level));
+            const source = document.getElementById('allSourceFilter').value;
+            if (source) {
+                pets = pets.filter(p => p.source === source);
             }
             
-            // Family filter - handle both petType and familyID
-            const family = document.getElementById('familyFilter').value;
+            const family = document.getElementById('allFamilyFilter').value;
             if (family) {
-                const familyId = parseInt(family);
-                pets = pets.filter(p => (p.petType || p.familyID) === familyId);
+                pets = pets.filter(p => p.family === parseInt(family));
             }
             
-            // Sort: favorites first, then by level desc, then by quality desc
+            const showMissingOnly = document.getElementById('showMissingOnly').checked;
+            if (showMissingOnly && ownedSpeciesIDs.size > 0) {
+                pets = pets.filter(p => !ownedSpeciesIDs.has(p.speciesID));
+            }
+            
+            // Sort: owned first (if collection loaded), then by zone, then by name
             pets.sort((a, b) => {
-                if (a.favorite !== b.favorite) return b.favorite ? 1 : -1;
-                if (a.level !== b.level) return (b.level || 0) - (a.level || 0);
-                const aQuality = typeof a.quality === 'number' ? a.quality : (a.qualityID || 0);
-                const bQuality = typeof b.quality === 'number' ? b.quality : (b.qualityID || 0);
-                if (aQuality !== bQuality) return bQuality - aQuality;
-                return (a.speciesName || '').localeCompare(b.speciesName || '');
+                const aOwned = ownedSpeciesIDs.has(a.speciesID);
+                const bOwned = ownedSpeciesIDs.has(b.speciesID);
+                if (aOwned !== bOwned) return bOwned ? 1 : -1;
+                if (a.zone !== b.zone) return a.zone.localeCompare(b.zone);
+                return a.name.localeCompare(b.name);
             });
             
             return pets;
         }
         
-        function setupFilters() {
-            document.getElementById('searchInput').addEventListener('input', renderPets);
-            document.getElementById('qualityFilter').addEventListener('change', renderPets);
-            document.getElementById('levelFilter').addEventListener('change', renderPets);
-            document.getElementById('familyFilter').addEventListener('change', renderPets);
+        function renderAllPets() {
+            const grid = document.getElementById('allPetGrid');
+            const pets = getAllFilteredPets();
+            
+            const ownedCount = pets.filter(p => ownedSpeciesIDs.has(p.speciesID)).length;
+            const statusText = ownedSpeciesIDs.size > 0 
+                ? `Showing ${pets.length} pets (${ownedCount} owned, ${pets.length - ownedCount} missing)`
+                : `Showing ${pets.length} pets (upload your collection to track progress!)`;
+            
+            document.getElementById('allPetCount').textContent = statusText;
+            document.getElementById('allNoResults').style.display = pets.length === 0 ? 'block' : 'none';
+            
+            grid.innerHTML = pets.map(pet => {
+                const family = families[pet.family] || { name: 'Unknown', icon: '❓' };
+                const isOwned = ownedSpeciesIDs.has(pet.speciesID);
+                const sourceClass = `source-${pet.source}`;
+                
+                return `
+                    <div class="pet-card ${isOwned ? 'owned' : 'missing'}">
+                        <div class="pet-icon">${family.icon}</div>
+                        <div class="pet-info">
+                            <div class="pet-name" style="color: ${isOwned ? '#00ff88' : '#aaa'}">
+                                ${isOwned ? '<span class="owned-check">✓</span>' : ''}
+                                ${pet.name}
+                                <span class="source-badge ${sourceClass}">${sourceLabels[pet.source]}</span>
+                            </div>
+                            <div class="pet-details">
+                                ${family.name} • Level ${pet.minLevel}${pet.maxLevel !== pet.minLevel ? '-' + pet.maxLevel : ''}
+                            </div>
+                            <div class="pet-location">📍 ${pet.zone} - ${pet.coords}</div>
+                        </div>
+                    </div>
+                `;
+            }).join('');
         }
+        
+        function setupAllFilters() {
+            document.getElementById('allSearchInput').addEventListener('input', renderAllPets);
+            document.getElementById('allZoneFilter').addEventListener('change', renderAllPets);
+            document.getElementById('allSourceFilter').addEventListener('change', renderAllPets);
+            document.getElementById('allFamilyFilter').addEventListener('change', renderAllPets);
+            document.getElementById('showMissingOnly').addEventListener('change', renderAllPets);
+        }
+
+        // =====================================================
+        // INITIALIZATION
+        // =====================================================
+        document.addEventListener('DOMContentLoaded', () => {
+            populateZoneFilter();
+            setupAllFilters();
+            renderAllPets();
+        });
     </script>
 </body>
 </html>
