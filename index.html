@@ -1314,7 +1314,7 @@ async function submitScore() {
         const pb = loadPersonalBest();
         if (!pb) { alert('Load your collection first!'); return; }
         const data = currentScoreData ? { player: playerData.playerName, realm: playerData.realmName, score: currentScoreData.total, pets: currentScoreData.stats.uniqueCount, level25: currentScoreData.stats.level25Count, rare: currentScoreData.stats.rareCount, epic: currentScoreData.stats.epicCount } : { player: pb.player, realm: pb.realm, score: pb.score, pets: pb.pets, level25: pb.level25, rare: pb.rare || 0, epic: pb.epic || 0 };
-        const collectionId = myPets && myPets.length > 0 ? 'c' + Math.abs(myPets.map(p => p.speciesID).sort((a,b) => a-b).join(',').split('').reduce((h,c) => ((h << 5) - h) + c.charCodeAt(0), 0)).toString(36) : null;
+        const collectionId = currentScoreData ? 'c' + Math.abs((data.pets + '-' + data.level25 + '-' + data.score + '-' + data.rare + '-' + data.epic).split('').reduce((h,c) => ((h << 5) - h) + c.charCodeAt(0), 0)).toString(36) : null;
         if (!collectionId) { alert('Please reload your collection first!'); return; }
         if (!confirm('Submit your score?\n\nPlayer: ' + data.player + '-' + data.realm + '\nScore: ' + data.score.toLocaleString() + '\nPets: ' + data.pets + '\nLevel 25: ' + data.level25)) return;
         try {
