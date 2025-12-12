@@ -174,6 +174,19 @@
         .how-it-works h4 { color: #00ff88; margin-bottom: 10px; font-size: 0.95rem; }
         .how-it-works ol { margin-left: 20px; color: #aaa; font-size: 0.85rem; }
         .how-it-works li { margin-bottom: 5px; }
+        .scoring-formula { margin-top: 20px; padding: 20px; background: rgba(255, 215, 0, 0.05); border: 1px solid rgba(255, 215, 0, 0.2); border-radius: 10px; }
+        .scoring-formula h4 { color: #ffd700; margin-bottom: 15px; font-size: 0.95rem; }
+        .scoring-formula .formula-section { margin-bottom: 12px; }
+        .scoring-formula .formula-title { color: #fff; font-weight: bold; font-size: 0.85rem; margin-bottom: 5px; }
+        .scoring-formula .formula-details { color: #aaa; font-size: 0.8rem; margin-left: 15px; }
+        .scoring-formula .quality-points { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 5px; margin-left: 15px; }
+        .scoring-formula .quality-point { padding: 3px 8px; border-radius: 4px; font-size: 0.75rem; }
+        .scoring-formula .q-poor { background: rgba(157, 157, 157, 0.2); color: #9d9d9d; }
+        .scoring-formula .q-common { background: rgba(157, 157, 157, 0.2); color: #9d9d9d; }
+        .scoring-formula .q-uncommon { background: rgba(255, 255, 255, 0.1); color: #fff; }
+        .scoring-formula .q-rare { background: rgba(30, 255, 0, 0.15); color: #1eff00; }
+        .scoring-formula .q-epic { background: rgba(0, 112, 221, 0.2); color: #0070dd; }
+        .scoring-formula .q-legendary { background: rgba(163, 53, 238, 0.2); color: #a335ee; }
         .disclaimer-small { margin-top: 15px; padding: 10px; background: rgba(255, 152, 0, 0.1); border: 1px solid rgba(255, 152, 0, 0.2); border-radius: 6px; font-size: 0.75rem; color: #ff9800; }
         .player-name.clickable { cursor: pointer; transition: all 0.2s ease; position: relative; }
         .player-name.clickable:hover { color: #00ff88; text-shadow: 0 0 10px rgba(0, 255, 136, 0.5); }
@@ -206,7 +219,7 @@
         <header>
             <h1>🐉 TauriPets</h1>
             <p class="subtitle">Battle Pet Collection Tracker for TauriWoW</p>
-            <p class="disclaimer">⚠️ Unofficial fan project · Not affiliated with TauriWoW or Crystalsong staff · Use at your own risk</p>
+            <p class="disclaimer">⚠️ Unofficial fan project · Not affiliated with TauriWoW or Crystalsong staff</p>
             <div class="header-buttons">
                 <a href="https://github.com/Kralomax/tauripets/releases/latest" class="download-btn" target="_blank">📦 Download Addon</a>
                 <a href="https://github.com/Kralomax/tauripets" class="github-btn" target="_blank">⭐ GitHub</a>
@@ -278,7 +291,7 @@
                     <table class="leaderboard-table" id="leaderboardTable"><thead><tr><th>Rank</th><th>Player</th><th>Score</th><th>Pets</th><th>Lv 25</th><th>Date</th></tr></thead><tbody id="leaderboardBody"></tbody></table>
                     <div class="leaderboard-empty" id="leaderboardEmpty"><p>🏆 No scores submitted yet!</p><p>Be the first to claim the top spot.</p></div>
                 </div>
-                <div class="how-it-works"><h4>📝 How It Works</h4><ol><li>Load your collection in the <strong>My Collection</strong> tab</li><li>Your personal best is automatically saved locally</li><li>Click <strong>"Submit Score to Leaderboard"</strong> to share your score</li><li>Compete with other TauriWoW pet collectors!</li></ol><p class="disclaimer-small">⚠️ This is an unofficial fan project. Not affiliated with TauriWoW/Crystalsong. Data is stored on third-party servers. Use at your own risk.</p></div>
+               <div class="how-it-works"><h4>📋 How It Works</h4><ol><li>Load your collection in the <strong>My Collection</strong> tab</li><li>Your personal best is automatically saved locally</li><li>Click <strong>"Submit to Leaderboard"</strong> to compete</li></ol></div><div class="scoring-formula"><h4>🏆 Scoring Formula</h4><div class="formula-section"><span class="formula-title">Quality Points</span><div class="quality-points"><span class="quality-point q-poor">Poor: 2</span><span class="quality-point q-common">Common: 3</span><span class="quality-point q-uncommon">Uncommon: 4</span><span class="quality-point q-rare">Rare: 5</span><span class="quality-point q-epic">Epic: 7</span><span class="quality-point q-legendary">Legendary: 12</span></div></div><div class="formula-section"><span class="formula-title">Level Points</span><span class="formula-details">+0.12 per level (max +3 at level 25)</span></div><div class="formula-section"><span class="formula-title">Achievement Bonuses</span><span class="formula-details">Collection milestones, level 25 counts, family diversity, quality thresholds</span></div></div><p class="disclaimer-small">⚠️ Unofficial fan project · Not affiliated with TauriWoW or Crystalsong staff</p>
             </div>
         </div>
     </div>
