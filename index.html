@@ -1025,6 +1025,134 @@
             font-size: 0.75rem;
             color: #ff9800;
         }
+        
+        /* Clickable player names in leaderboard */
+        .player-name.clickable {
+            cursor: pointer;
+            transition: all 0.2s ease;
+            position: relative;
+        }
+        .player-name.clickable:hover {
+            color: #00ff88;
+            text-shadow: 0 0 10px rgba(0, 255, 136, 0.5);
+        }
+        .player-name .view-icon {
+            opacity: 0;
+            margin-left: 5px;
+            transition: opacity 0.2s;
+        }
+        .player-name.clickable:hover .view-icon {
+            opacity: 1;
+        }
+        
+        /* Collection Modal */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.85);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+        .modal-content {
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+            border: 2px solid #00ff88;
+            border-radius: 15px;
+            padding: 25px;
+            max-width: 700px;
+            width: 100%;
+            max-height: 80vh;
+            overflow-y: auto;
+            position: relative;
+            box-shadow: 0 0 30px rgba(0, 255, 136, 0.3);
+        }
+        .modal-close {
+            position: absolute;
+            top: 10px;
+            right: 15px;
+            background: none;
+            border: none;
+            color: #888;
+            font-size: 1.5rem;
+            cursor: pointer;
+            transition: color 0.2s;
+        }
+        .modal-close:hover {
+            color: #ff6b6b;
+        }
+        .modal-content h2 {
+            color: #00ff88;
+            margin-bottom: 20px;
+            padding-right: 30px;
+        }
+        .modal-stats {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 15px;
+            margin-bottom: 20px;
+            justify-content: center;
+        }
+        .modal-stat {
+            background: rgba(0, 0, 0, 0.3);
+            padding: 15px 20px;
+            border-radius: 10px;
+            text-align: center;
+            min-width: 80px;
+        }
+        .modal-stat .value {
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: #00ff88;
+        }
+        .modal-stat.score .value {
+            color: #ffd700;
+        }
+        .modal-stat .label {
+            font-size: 0.8rem;
+            color: #888;
+            margin-top: 5px;
+        }
+        .modal-pets {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            gap: 8px;
+            max-height: 400px;
+            overflow-y: auto;
+            padding: 10px;
+            background: rgba(0, 0, 0, 0.2);
+            border-radius: 10px;
+        }
+        .modal-pet {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 8px 12px;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 6px;
+            font-size: 0.85rem;
+        }
+        .modal-pet.rare { border-left: 3px solid #1eff00; }
+        .modal-pet.epic { border-left: 3px solid #0070dd; }
+        .modal-pet.legendary { border-left: 3px solid #a335ee; }
+        .modal-pet .pet-icon { font-size: 1.1rem; }
+        .modal-pet .pet-name { flex: 1; color: #fff; }
+        .modal-pet .pet-level { color: #888; font-size: 0.75rem; }
+        .modal-pet.more {
+            color: #888;
+            font-style: italic;
+            justify-content: center;
+        }
+        .modal-updated {
+            text-align: center;
+            color: #666;
+            font-size: 0.8rem;
+            margin-top: 15px;
+        }
     </style>
 </head>
 <body>
@@ -1433,6 +1561,82 @@
         let LEADERBOARD_DATA = [];
 
         // =====================================================
+        // COLLECTION STORAGE (Supabase)
+        // =====================================================
+        
+        // Save collection to Supabase
+        async function saveCollectionToSupabase(playerName, realmName, pets, score) {
+            try {
+                console.log('Saving collection to Supabase...');
+                
+                // Check if player already has a collection
+                const { data: existing, error: checkError } = await supabase
+                    .from('Collections')
+                    .select('id')
+                    .eq('player', playerName)
+                    .eq('realm', realmName)
+                    .single();
+                
+                const collectionData = {
+                    player: playerName,
+                    realm: realmName,
+                    pets: pets,
+                    score: score,
+                    updated_at: new Date().toISOString()
+                };
+                
+                let result;
+                if (existing) {
+                    // Update existing
+                    result = await supabase
+                        .from('Collections')
+                        .update(collectionData)
+                        .eq('id', existing.id);
+                } else {
+                    // Insert new
+                    result = await supabase
+                        .from('Collections')
+                        .insert(collectionData);
+                }
+                
+                if (result.error) {
+                    console.error('Error saving collection:', result.error);
+                    return false;
+                }
+                
+                console.log('Collection saved successfully!');
+                return true;
+            } catch (err) {
+                console.error('Failed to save collection:', err);
+                return false;
+            }
+        }
+        
+        // Load collection from Supabase (for viewing other players)
+        async function loadCollectionFromSupabase(playerName, realmName) {
+            try {
+                console.log(`Loading collection for ${playerName}-${realmName}...`);
+                
+                const { data, error } = await supabase
+                    .from('Collections')
+                    .select('*')
+                    .eq('player', playerName)
+                    .eq('realm', realmName)
+                    .single();
+                
+                if (error) {
+                    console.error('Error loading collection:', error);
+                    return null;
+                }
+                
+                return data;
+            } catch (err) {
+                console.error('Failed to load collection:', err);
+                return null;
+            }
+        }
+
+        // =====================================================
         // GLOBAL STATE
         // =====================================================
         let playerData = null;
@@ -1599,6 +1803,8 @@
             }
             
             try {
+                console.log('Submitting to Supabase:', data);
+                
                 // Check if player already has an entry
                 const { data: existing, error: checkError } = await supabase
                     .from('Leaderboard')
@@ -1606,6 +1812,8 @@
                     .eq('player', data.player)
                     .eq('realm', data.realm)
                     .single();
+                
+                console.log('Existing entry check:', existing, checkError);
                 
                 if (existing && existing.score >= data.score) {
                     alert(`Your current leaderboard score (${existing.score.toLocaleString()}) is higher or equal!\n\nKeep collecting to beat your record.`);
@@ -1615,6 +1823,7 @@
                 let result;
                 if (existing) {
                     // Update existing entry
+                    console.log('Updating existing entry...');
                     result = await supabase
                         .from('Leaderboard')
                         .update({
@@ -1628,6 +1837,7 @@
                         .eq('id', existing.id);
                 } else {
                     // Insert new entry
+                    console.log('Inserting new entry...');
                     result = await supabase
                         .from('Leaderboard')
                         .insert({
@@ -1640,6 +1850,8 @@
                             epic: data.epic
                         });
                 }
+                
+                console.log('Insert/Update result:', result);
                 
                 if (result.error) {
                     throw result.error;
@@ -1670,6 +1882,7 @@
         // Fetch leaderboard from Supabase
         async function fetchLeaderboard() {
             try {
+                console.log('Fetching leaderboard from Supabase...');
                 const { data, error } = await supabase
                     .from('Leaderboard')
                     .select('*')
@@ -1677,10 +1890,11 @@
                     .limit(50);
                 
                 if (error) {
-                    console.error('Error fetching leaderboard:', error);
+                    console.error('Supabase error:', error);
                     return [];
                 }
                 
+                console.log('Leaderboard data:', data);
                 return data || [];
             } catch (err) {
                 console.error('Leaderboard fetch failed:', err);
@@ -1723,7 +1937,10 @@
                 return `
                     <tr>
                         <td class="rank ${rankClass}"><span class="trophy">${trophy}</span>${rank}</td>
-                        <td class="player-name">${entry.player}-${entry.realm}</td>
+                        <td class="player-name clickable" onclick="viewPlayerCollection('${entry.player}', '${entry.realm}')" title="Click to view collection">
+                            ${entry.player}-${entry.realm}
+                            <span class="view-icon">👁️</span>
+                        </td>
                         <td class="score">${entry.score.toLocaleString()}</td>
                         <td>${entry.pets}</td>
                         <td>${entry.level25}</td>
@@ -1731,6 +1948,97 @@
                     </tr>
                 `;
             }).join('');
+        }
+        
+        // View another player's collection
+        async function viewPlayerCollection(playerName, realmName) {
+            // Show loading modal
+            const modal = document.getElementById('collectionModal');
+            const modalTitle = document.getElementById('modalTitle');
+            const modalBody = document.getElementById('modalBody');
+            
+            modalTitle.textContent = `${playerName}-${realmName}'s Collection`;
+            modalBody.innerHTML = '<div style="text-align:center;padding:40px;color:#888;">Loading collection...</div>';
+            modal.style.display = 'flex';
+            
+            // Fetch collection from Supabase
+            const collection = await loadCollectionFromSupabase(playerName, realmName);
+            
+            if (!collection || !collection.pets || collection.pets.length === 0) {
+                modalBody.innerHTML = `
+                    <div style="text-align:center;padding:40px;">
+                        <p style="color:#ff6b6b;font-size:1.2em;">❌ Collection not found</p>
+                        <p style="color:#888;margin-top:10px;">This player hasn't uploaded their collection yet.</p>
+                    </div>
+                `;
+                return;
+            }
+            
+            // Calculate stats
+            const pets = collection.pets;
+            let level25 = 0, rareCount = 0, epicCount = 0;
+            const familiesOwned = new Set();
+            
+            pets.forEach(pet => {
+                if (pet.level === 25) level25++;
+                if (pet.quality >= 3) rareCount++;
+                if (pet.quality >= 4) epicCount++;
+                if (pet.petType) familiesOwned.add(pet.petType);
+            });
+            
+            // Sort pets by level desc, then quality desc
+            pets.sort((a, b) => {
+                if (b.level !== a.level) return b.level - a.level;
+                return b.quality - a.quality;
+            });
+            
+            // Render modal content
+            modalBody.innerHTML = `
+                <div class="modal-stats">
+                    <div class="modal-stat">
+                        <div class="value">${pets.length}</div>
+                        <div class="label">Pets</div>
+                    </div>
+                    <div class="modal-stat">
+                        <div class="value">${level25}</div>
+                        <div class="label">Lv 25</div>
+                    </div>
+                    <div class="modal-stat">
+                        <div class="value">${rareCount}</div>
+                        <div class="label">Rare+</div>
+                    </div>
+                    <div class="modal-stat">
+                        <div class="value">${familiesOwned.size}</div>
+                        <div class="label">Families</div>
+                    </div>
+                    <div class="modal-stat score">
+                        <div class="value">${collection.score ? collection.score.toLocaleString() : 'N/A'}</div>
+                        <div class="label">Score</div>
+                    </div>
+                </div>
+                <div class="modal-pets">
+                    ${pets.slice(0, 50).map(pet => {
+                        const qualityClass = ['poor', 'common', 'uncommon', 'rare', 'epic', 'legendary'][pet.quality] || 'common';
+                        const familyIcon = families[pet.petType]?.icon || '❓';
+                        return `
+                            <div class="modal-pet ${qualityClass}">
+                                <span class="pet-icon">${familyIcon}</span>
+                                <span class="pet-name">${pet.speciesName || 'Unknown'}</span>
+                                <span class="pet-level">Lv ${pet.level}</span>
+                            </div>
+                        `;
+                    }).join('')}
+                    ${pets.length > 50 ? `<div class="modal-pet more">... and ${pets.length - 50} more pets</div>` : ''}
+                </div>
+                <div class="modal-updated">
+                    Last updated: ${collection.updated_at ? new Date(collection.updated_at).toLocaleDateString() : 'Unknown'}
+                </div>
+            `;
+        }
+        
+        // Close modal
+        function closeModal() {
+            document.getElementById('collectionModal').style.display = 'none';
         }
         
         // Calculate pet score
@@ -1894,6 +2202,21 @@
                 
                 displayMyCollection();
                 renderAllPets();
+                
+                // Save collection to Supabase (async, don't wait)
+                if (playerData.playerName && playerData.pets.length > 0) {
+                    const score = currentScoreData ? currentScoreData.total : 0;
+                    saveCollectionToSupabase(
+                        playerData.playerName,
+                        playerData.realmName,
+                        playerData.pets,
+                        score
+                    ).then(saved => {
+                        if (saved) {
+                            console.log('Collection synced to cloud!');
+                        }
+                    });
+                }
                 
                 // Clear the paste area
                 document.getElementById('pasteInput').value = '';
@@ -2349,5 +2672,13 @@
             renderLeaderboard();
         });
     </script>
+    <!-- Collection View Modal -->
+    <div id="collectionModal" class="modal" onclick="if(event.target===this)closeModal()">
+        <div class="modal-content">
+            <button class="modal-close" onclick="closeModal()">✕</button>
+            <h2 id="modalTitle">Player Collection</h2>
+            <div id="modalBody">Loading...</div>
+        </div>
+    </div>
 </body>
 </html>
