@@ -1310,20 +1310,22 @@
             content.innerHTML = '<div class="pb-score">' + pb.score.toLocaleString() + '</div><div class="pb-details"><div class="pb-detail"><div class="value">' + pb.pets + '</div><div class="label">Unique Pets</div></div><div class="pb-detail"><div class="value">' + pb.level25 + '</div><div class="label">Level 25</div></div><div class="pb-detail"><div class="value">' + (pb.rare||0) + '</div><div class="label">Rare+</div></div></div><div class="pb-meta">' + pb.player + '-' + pb.realm + ' • Best: ' + pb.date + '</div><div class="submit-section"><button class="submit-btn primary" onclick="submitScore()" ' + (!currentScoreData ? 'disabled' : '') + '>🏆 Submit Score to Leaderboard</button></div>';
         }
         
-        async function submitScore() {
-            const pb = loadPersonalBest();
-            if (!pb) { alert('Load your collection first!'); return; }
-            const data = currentScoreData ? { player: playerData.playerName, realm: playerData.realmName, score: currentScoreData.total, pets: currentScoreData.stats.uniqueCount, level25: currentScoreData.stats.level25Count, rare: currentScoreData.stats.rareCount, epic: currentScoreData.stats.epicCount } : pb;
-            if (!confirm('Submit your score?\n\nPlayer: ' + data.player + '-' + data.realm + '\nScore: ' + data.score.toLocaleString() + '\nPets: ' + data.pets + '\nLevel 25: ' + data.level25)) return;
-            try {
-                const { data: existing } = await supabase.from('Leaderboard').select('id, score').eq('player', data.player).eq('realm', data.realm).single();
-                if (existing && existing.score >= data.score) { alert('Your current leaderboard score (' + existing.score.toLocaleString() + ') is higher or equal!'); return; }
-                let result = existing ? await supabase.from('Leaderboard').update({ score: data.score, pets: data.pets, level25: data.level25, rare: data.rare, epic: data.epic, created_at: new Date().toISOString() }).eq('id', existing.id) : await supabase.from('Leaderboard').insert({ player: data.player, realm: data.realm, score: data.score, pets: data.pets, level25: data.level25, rare: data.rare, epic: data.epic });
-                if (result.error) throw result.error;
-                showCopyFeedback(); document.getElementById('copyFeedback').textContent = '✓ Score submitted!';
-                await renderLeaderboard();
-            } catch (err) { alert('Error submitting score: ' + (err.message || 'Unknown error')); }
-        }
+async function submitScore() {
+        const pb = loadPersonalBest();
+        if (!pb) { alert('Load your collection first!'); return; }
+        const data = currentScoreData ? { player: playerData.playerName, realm: playerData.realmName, score: currentScoreData.total, pets: currentScoreData.stats.uniqueCount, level25: currentScoreData.stats.level25Count, rare: currentScoreData.stats.rareCount, epic: currentScoreData.stats.epicCount } : { player: pb.player, realm: pb.realm, score: pb.score, pets: pb.pets, level25: pb.level25, rare: pb.rare || 0, epic: pb.epic || 0 };
+        const collectionId = myPets && myPets.length > 0 ? 'c' + Math.abs(myPets.map(p => p.speciesID).sort((a,b) => a-b).join(',').split('').reduce((h,c) => ((h << 5) - h) + c.charCodeAt(0), 0)).toString(36) : null;
+        if (!collectionId) { alert('Please reload your collection first!'); return; }
+        if (!confirm('Submit your score?\n\nPlayer: ' + data.player + '-' + data.realm + '\nScore: ' + data.score.toLocaleString() + '\nPets: ' + data.pets + '\nLevel 25: ' + data.level25)) return;
+        try {
+            const { data: existing } = await supabase.from('leaderboard').select('id, score, player, realm').eq('collection_id', collectionId).maybeSingle();
+            if (existing && existing.score >= data.score) { alert('Your current leaderboard score (' + existing.score.toLocaleString() + ') is higher or equal!' + (existing.player !== data.player ? '\n(Previously submitted as ' + existing.player + ')' : '')); return; }
+            let result = existing ? await supabase.from('leaderboard').update({ player: data.player, realm: data.realm, score: data.score, pets: data.pets, level25: data.level25, rare: data.rare, epic: data.epic, created_at: new Date().toISOString() }).eq('id', existing.id) : await supabase.from('leaderboard').insert({ player: data.player, realm: data.realm, score: data.score, pets: data.pets, level25: data.level25, rare: data.rare, epic: data.epic, collection_id: collectionId, created_at: new Date().toISOString() });
+            if (result.error) throw result.error;
+            showCopyFeedback(); document.getElementById('copyFeedback').textContent = '✓ Score submitted!';
+            await renderLeaderboard();
+        } catch (err) { alert('Error submitting score: ' + (err.message || 'Unknown error')); }
+    }
         
         function showCopyFeedback() { const f = document.getElementById('copyFeedback'); f.classList.add('show'); setTimeout(() => f.classList.remove('show'), 2500); }
         
