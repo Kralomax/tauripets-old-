@@ -1320,7 +1320,7 @@ async function submitScore() {
         try {
             const { data: existing } = await supabase.from('Leaderboard').select('id, score, player, realm').eq('collection_id', collectionId).maybeSingle();
             if (existing && existing.score >= data.score) { alert('Your current leaderboard score (' + existing.score.toLocaleString() + ') is higher or equal!' + (existing.player !== data.player ? '\n(Previously submitted as ' + existing.player + ')' : '')); return; }
-            let result = existing ? await supabase.from('Leaderboard').update({ player: data.player, realm: data.realm, score: data.score, pets: data.pets, level25: data.level25, rare: data.rare, epic: data.epic, created_at: new Date().toISOString() }).eq('id', existing.id) : await supabase.from('leaderboard').insert({ player: data.player, realm: data.realm, score: data.score, pets: data.pets, level25: data.level25, rare: data.rare, epic: data.epic, collection_id: collectionId, created_at: new Date().toISOString() });
+            let result = existing ? await supabase.from('Leaderboard').update({ player: data.player, realm: data.realm, score: data.score, pets: data.pets, level25: data.level25, rare: data.rare, epic: data.epic, created_at: new Date().toISOString() }).eq('id', existing.id) : await supabase.from('Leaderboard').insert({ player: data.player, realm: data.realm, score: data.score, pets: data.pets, level25: data.level25, rare: data.rare, epic: data.epic, collection_id: collectionId, created_at: new Date().toISOString() });
             if (result.error) throw result.error;
             showCopyFeedback(); document.getElementById('copyFeedback').textContent = '✓ Score submitted!';
             await renderLeaderboard();
