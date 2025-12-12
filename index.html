@@ -1567,15 +1567,17 @@
         // Save collection to Supabase
         async function saveCollectionToSupabase(playerName, realmName, pets, score) {
             try {
-                console.log('Saving collection to Supabase...');
+                console.log('Saving collection to Supabase...', { playerName, realmName, petsCount: pets.length, score });
                 
                 // Check if player already has a collection
                 const { data: existing, error: checkError } = await supabase
-                    .from('Collections')
+                    .from('collections')
                     .select('id')
                     .eq('player', playerName)
                     .eq('realm', realmName)
                     .single();
+                
+                console.log('Existing collection check:', existing, checkError);
                 
                 const collectionData = {
                     player: playerName,
@@ -1588,16 +1590,20 @@
                 let result;
                 if (existing) {
                     // Update existing
+                    console.log('Updating existing collection...');
                     result = await supabase
-                        .from('Collections')
+                        .from('collections')
                         .update(collectionData)
                         .eq('id', existing.id);
                 } else {
                     // Insert new
+                    console.log('Inserting new collection...');
                     result = await supabase
-                        .from('Collections')
+                        .from('collections')
                         .insert(collectionData);
                 }
+                
+                console.log('Save result:', result);
                 
                 if (result.error) {
                     console.error('Error saving collection:', result.error);
@@ -1618,11 +1624,13 @@
                 console.log(`Loading collection for ${playerName}-${realmName}...`);
                 
                 const { data, error } = await supabase
-                    .from('Collections')
+                    .from('collections')
                     .select('*')
                     .eq('player', playerName)
                     .eq('realm', realmName)
                     .single();
+                
+                console.log('Load result:', data, error);
                 
                 if (error) {
                     console.error('Error loading collection:', error);
